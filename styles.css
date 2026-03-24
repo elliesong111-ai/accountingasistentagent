@@ -1,0 +1,776 @@
+/* ============================================================
+   TOKENS
+   ============================================================ */
+:root {
+  --bg:          #0a0a0a;
+  --bg-card:     #141414;
+  --bg-input:    #1c1c1c;
+  --text:        #f0ede8;
+  --text-muted:  #777;
+  --text-faint:  #383838;
+  --border:      #242424;
+
+  --green:  #4ade80;
+  --yellow: #fbbf24;
+  --red:    #ef4444;
+  --blue:   #60a5fa;
+  --white:  #e2e8f0;
+
+  --radius:    12px;
+  --radius-lg: 20px;
+  --safe-bottom: max(24px, env(safe-area-inset-bottom));
+}
+
+/* ============================================================
+   RESET
+   ============================================================ */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+body {
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* ============================================================
+   SCREEN BASE
+   ============================================================ */
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+.anim-fadeup  { animation: fadeUp  0.35s ease-out both; }
+.anim-fadein  { animation: fadeIn  0.25s ease-out both; }
+.anim-card    { animation: cardIn  0.3s  ease-out both; }
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 18px 24px;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.12s, transform 0.1s;
+  -webkit-user-select: none;
+  user-select: none;
+  font-family: inherit;
+}
+.btn:active {
+  opacity: 0.75;
+  transform: scale(0.97);
+}
+.btn:disabled {
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+.btn-primary {
+  background: var(--text);
+  color: var(--bg);
+}
+.btn-secondary {
+  background: var(--bg-card);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+.btn-danger {
+  background: transparent;
+  color: var(--red);
+  border: 1px solid var(--red);
+  font-size: 12px;
+  padding: 12px 20px;
+}
+.btn-lg { padding: 22px 24px; font-size: 15px; }
+.btn-sm { padding: 12px 20px; font-size: 12px; letter-spacing: 0.1em; }
+
+/* ============================================================
+   HOME SCREEN
+   ============================================================ */
+.home-screen {
+  padding: 0 28px var(--safe-bottom);
+  justify-content: space-between;
+}
+
+.home-top {
+  padding-top: 72px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-wordmark {
+  text-align: center;
+}
+.home-title {
+  font-size: clamp(52px, 14vw, 72px);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+.home-title em {
+  font-style: normal;
+  display: block;
+}
+.home-sub {
+  margin-top: 16px;
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.home-bottom {
+  padding-bottom: 8px;
+}
+.home-modes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.mode-btn-inner {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.mode-btn-duration {
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  opacity: 0.45;
+  text-transform: none;
+}
+.home-footer {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-faint);
+  letter-spacing: 0.08em;
+  padding-bottom: 4px;
+}
+
+/* ============================================================
+   SETUP SCREEN
+   ============================================================ */
+.setup-screen {
+  padding: env(safe-area-inset-top, 0) 28px var(--safe-bottom);
+  padding-top: max(20px, env(safe-area-inset-top));
+}
+
+.screen-nav {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0 36px;
+}
+.back-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 22px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px 4px 4px 0;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.screen-nav-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.setup-heading {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin-bottom: 32px;
+}
+
+.player-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+.input-wrap {
+  position: relative;
+}
+.input-num {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  color: var(--text-faint);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  pointer-events: none;
+}
+.player-input {
+  width: 100%;
+  padding: 16px 16px 16px 40px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 17px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+  -webkit-appearance: none;
+}
+.player-input::placeholder {
+  color: var(--text-faint);
+}
+.player-input:focus {
+  border-color: #404040;
+}
+
+.setup-footer {
+  padding-top: 24px;
+}
+
+/* ============================================================
+   ROLE REVEAL SCREEN
+   ============================================================ */
+.reveal-screen {
+  padding: 0 28px var(--safe-bottom);
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 100%;
+}
+
+.reveal-step-label {
+  font-size: 11px;
+  color: var(--text-faint);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 52px;
+  padding-top: max(24px, env(safe-area-inset-top));
+}
+
+.reveal-prompt {
+  font-size: 13px;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.reveal-name {
+  font-size: clamp(32px, 10vw, 44px);
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  margin-bottom: 64px;
+  word-break: break-word;
+}
+
+.reveal-cta-wrap {
+  width: 100%;
+}
+
+/* Role shown state */
+.role-card {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 44px 28px 36px;
+  margin-bottom: 28px;
+}
+.role-card-eyebrow {
+  font-size: 10px;
+  color: var(--text-faint);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+.role-card-name {
+  font-size: 52px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  margin-bottom: 22px;
+}
+.role-card-goal {
+  font-size: 16px;
+  color: var(--text-muted);
+  line-height: 1.65;
+  margin-bottom: 20px;
+}
+.role-card-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin-bottom: 18px;
+}
+.role-card-wins {
+  font-size: 13px;
+  color: var(--text-faint);
+  line-height: 1.7;
+}
+.role-card-wins strong {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* ============================================================
+   SESSION START SCREEN
+   ============================================================ */
+.session-start-screen {
+  padding: 0 28px var(--safe-bottom);
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.ss-mode-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.ss-duration {
+  font-size: 44px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  margin-bottom: 44px;
+}
+.ss-instructions {
+  font-size: 16px;
+  color: var(--text-muted);
+  line-height: 1.9;
+  margin-bottom: 64px;
+}
+.ss-instructions em {
+  font-style: normal;
+  color: var(--text);
+}
+
+/* ============================================================
+   GAME SCREEN
+   ============================================================ */
+.game-screen {
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Phase progress bar */
+.phase-bar {
+  height: 2px;
+  width: 100%;
+  background: var(--border);
+  flex-shrink: 0;
+}
+.phase-bar-fill {
+  height: 100%;
+  transition: width 1s linear, background-color 0.6s ease;
+  will-change: width;
+}
+
+/* Game header */
+.game-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px 10px;
+  flex-shrink: 0;
+}
+.phase-pill {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.phase-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.game-timer {
+  font-size: 14px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+.game-timer.urgent {
+  color: var(--red);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+/* Card area */
+.game-card-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 24px;
+  overflow: hidden;
+}
+
+.game-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: clamp(36px, 10vw, 52px) clamp(24px, 8vw, 36px);
+  text-align: center;
+  animation: cardIn 0.3s ease-out;
+}
+.game-card-phase-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin: 0 auto 28px;
+}
+.game-card-title {
+  font-size: clamp(32px, 9vw, 44px);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 1.05;
+  margin-bottom: 22px;
+}
+.game-card-text {
+  font-size: 16px;
+  color: var(--text-muted);
+  line-height: 1.75;
+}
+
+.game-no-cards {
+  text-align: center;
+  color: var(--text-muted);
+}
+.game-no-cards-dash {
+  font-size: 40px;
+  margin-bottom: 16px;
+  color: var(--text-faint);
+}
+.game-no-cards-msg {
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+/* Game footer */
+.game-footer {
+  flex-shrink: 0;
+  padding: 12px 24px var(--safe-bottom);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ============================================================
+   PHASE TRANSITION SCREEN
+   ============================================================ */
+.phase-trans-screen {
+  padding: 0 28px var(--safe-bottom);
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: #0a0a0a;
+}
+
+.phase-trans-label {
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+  opacity: 0.5;
+}
+.phase-trans-name {
+  font-size: clamp(52px, 15vw, 72px);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  margin-bottom: 14px;
+}
+.phase-trans-duration {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 64px;
+}
+
+/* ============================================================
+   VOTE SCREEN
+   ============================================================ */
+.vote-screen {
+  padding: 0 24px var(--safe-bottom);
+}
+
+.vote-header {
+  text-align: center;
+  padding: 40px 0 32px;
+  flex-shrink: 0;
+}
+.vote-pass-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.vote-player-name {
+  font-size: clamp(28px, 8vw, 38px);
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  margin-bottom: 6px;
+  word-break: break-word;
+}
+.vote-private-tag {
+  display: inline-block;
+  font-size: 10px;
+  color: var(--text-faint);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border: 1px solid var(--text-faint);
+  border-radius: 20px;
+  padding: 3px 10px;
+}
+
+.vote-section {
+  margin-bottom: 28px;
+}
+.vote-section-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  padding-left: 2px;
+}
+.vote-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.vote-option {
+  width: 100%;
+  padding: 16px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 16px;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
+  -webkit-user-select: none;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.vote-option:active {
+  opacity: 0.75;
+}
+.vote-option.selected {
+  border-color: var(--text);
+  background: rgba(240,237,232,0.07);
+}
+.vote-option-check {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s, border-color 0.12s;
+}
+.vote-option.selected .vote-option-check {
+  background: var(--text);
+  border-color: var(--text);
+}
+.vote-option-check-inner {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bg);
+  display: none;
+}
+.vote-option.selected .vote-option-check-inner {
+  display: block;
+}
+
+.vote-footer {
+  padding-top: 8px;
+  padding-bottom: 4px;
+}
+
+/* ============================================================
+   RESULTS SCREEN
+   ============================================================ */
+.results-screen {
+  padding: 0 24px var(--safe-bottom);
+  overflow-y: auto;
+}
+
+.results-header {
+  text-align: center;
+  padding: 52px 0 44px;
+}
+.results-eyebrow {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.results-title {
+  font-size: clamp(38px, 11vw, 52px);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.results-section {
+  margin-bottom: 40px;
+}
+.results-section-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+/* Winner cards */
+.winner-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 20px 20px 22px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.winner-info {}
+.winner-name {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.winner-role {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+.winner-star {
+  font-size: 22px;
+  line-height: 1;
+  color: var(--text-muted);
+}
+
+.no-winners-msg {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 15px;
+  padding: 28px 0;
+  line-height: 1.8;
+}
+
+/* Role reveal list */
+.role-list-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+.role-list-row:first-child {
+  border-top: 1px solid var(--border);
+}
+.role-list-player {
+  font-size: 17px;
+}
+.role-list-role {
+  font-size: 12px;
+  color: var(--text-muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.results-footer {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+.flex-1 { flex: 1; }
+.text-center { text-align: center; }
+.mt-auto { margin-top: auto; }
