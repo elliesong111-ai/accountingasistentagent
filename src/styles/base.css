@@ -1,0 +1,467 @@
+/* ─── Reset & Base ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0a0a;
+  --surface: #141414;
+  --surface-2: #1e1e1e;
+  --border: #2a2a2a;
+  --text-primary: #f0f0f0;
+  --text-secondary: #888;
+  --text-muted: #555;
+  --accent: #f0f0f0;
+  --radius: 12px;
+  --radius-lg: 20px;
+  font-size: 16px;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: -apple-system, 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+/* ─── Screen container ─── */
+.screen {
+  min-height: 100dvh;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 20px 40px;
+  position: relative;
+}
+
+/* ─── Buttons ─── */
+.btn {
+  display: block;
+  width: 100%;
+  padding: 16px 24px;
+  border-radius: var(--radius);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.15s, transform 0.1s;
+  text-align: center;
+}
+.btn:active { transform: scale(0.97); }
+.btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.btn--primary {
+  background: var(--text-primary);
+  color: var(--bg);
+}
+.btn--ghost {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+.btn--text {
+  background: transparent;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+.btn--phase {
+  background: var(--phase-text, #f0f0f0);
+  color: var(--phase-color, #0a0a0a);
+}
+
+.btn-back {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 0;
+  margin-bottom: 24px;
+  width: fit-content;
+  letter-spacing: 0.02em;
+}
+
+/* ─── Screen headers ─── */
+.screen-header { margin-bottom: 32px; }
+.screen-title {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+.screen-subtitle {
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+
+/* ─── Landing ─── */
+.screen--landing {
+  justify-content: space-between;
+  background: var(--bg);
+}
+.landing-content { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+.landing-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+.landing-title {
+  font-size: clamp(64px, 18vw, 96px);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 0.9;
+  color: var(--text-primary);
+  margin-bottom: 28px;
+}
+.landing-tagline {
+  font-size: 16px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.landing-footer { display: flex; flex-direction: column; gap: 12px; }
+.landing-note {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+
+/* ─── Mode Select ─── */
+.screen--mode { justify-content: flex-start; }
+.mode-cards { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+.mode-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px 20px;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.1s;
+  position: relative;
+  width: 100%;
+}
+.mode-card:active { transform: scale(0.98); border-color: var(--text-muted); }
+.mode-card-time {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.mode-card-name {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+.mode-card-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }
+.mode-card-arrow {
+  position: absolute;
+  top: 24px;
+  right: 20px;
+  font-size: 18px;
+  color: var(--text-muted);
+}
+.mode-note {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* ─── Player Setup ─── */
+.screen--setup { justify-content: flex-start; }
+.player-inputs { display: flex; flex-direction: column; gap: 10px; margin-bottom: 32px; flex: 1; }
+.player-input-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+.player-number {
+  font-size: 13px;
+  color: var(--text-muted);
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.player-input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  color: var(--text-primary);
+  font-family: inherit;
+}
+.player-input::placeholder { color: var(--text-muted); }
+.setup-footer { display: flex; flex-direction: column; gap: 12px; }
+.setup-note { font-size: 13px; color: var(--text-muted); text-align: center; }
+
+/* ─── Role Pass ─── */
+.screen--role-pass {
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+  background: var(--surface);
+}
+.role-pass-content { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; }
+.role-pass-icon { font-size: 48px; margin-bottom: 8px; }
+.role-pass-title { font-size: 18px; color: var(--text-secondary); font-weight: 400; }
+.role-pass-name { font-size: 36px; font-weight: 700; color: var(--text-primary); }
+.role-pass-note { font-size: 13px; color: var(--text-muted); }
+
+/* ─── Role Reveal ─── */
+.screen--role-reveal {
+  justify-content: space-between;
+  background: #0e0e0e;
+}
+.role-reveal-content { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 16px; }
+.role-badge {
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  font-weight: 700;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  padding: 6px 12px;
+  border-radius: 4px;
+  width: fit-content;
+}
+.role-description {
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+.role-divider { height: 1px; background: var(--border); margin: 8px 0; }
+.role-goal-label, .role-hint-label {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.role-goal { font-size: 15px; color: var(--text-secondary); line-height: 1.5; }
+.role-hint { font-size: 14px; color: var(--text-muted); font-style: italic; line-height: 1.5; }
+
+/* ─── Phase Card ─── */
+.screen--phase {
+  justify-content: space-between;
+  background: var(--phase-color, #111);
+  color: var(--phase-text, #f0f0f0);
+}
+.phase-card-content { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 8px; }
+.phase-number {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.5;
+  margin-bottom: 8px;
+}
+.phase-label {
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  font-weight: 700;
+  opacity: 0.6;
+}
+.phase-mood {
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--phase-text);
+}
+.phase-subtitle {
+  font-size: 16px;
+  opacity: 0.7;
+  line-height: 1.5;
+  max-width: 280px;
+}
+
+/* ─── Prompt Card ─── */
+.screen--prompt {
+  justify-content: space-between;
+  background: var(--bg);
+}
+.prompt-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.prompt-phase-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--phase-color);
+  flex-shrink: 0;
+}
+.prompt-meta {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.prompt-type {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--phase-text, var(--text-muted));
+  opacity: 0.8;
+}
+.prompt-progress {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.prompt-body { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 16px; }
+.prompt-target {
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--phase-text, var(--text-muted));
+  opacity: 0.7;
+}
+.prompt-text {
+  font-size: clamp(20px, 5vw, 26px);
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--text-primary);
+}
+.prompt-footer { display: flex; flex-direction: column; gap: 16px; }
+.prompt-players {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.prompt-player-chip {
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  transition: all 0.15s;
+}
+.prompt-player-chip.active {
+  background: var(--phase-color);
+  color: var(--phase-text, var(--text-primary));
+  border-color: transparent;
+}
+
+/* ─── Final Vote ─── */
+.screen--vote-pass {
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+  background: var(--surface);
+}
+.vote-pass-content { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; }
+.vote-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.vote-pass-title { font-size: 18px; color: var(--text-secondary); font-weight: 400; }
+.vote-pass-name { font-size: 36px; font-weight: 700; color: var(--text-primary); }
+.vote-pass-note { font-size: 13px; color: var(--text-muted); }
+
+.screen--vote { justify-content: flex-start; gap: 0; }
+.vote-header { margin-bottom: 32px; margin-top: 48px; }
+.vote-question {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  margin-top: 8px;
+}
+.vote-options { display: flex; flex-direction: column; gap: 10px; }
+.vote-option {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, transform 0.1s;
+}
+.vote-option:active { transform: scale(0.98); border-color: var(--text-muted); }
+.vote-option--suspicious {
+  border-color: #3a1a1a;
+  color: #FF8FA3;
+}
+.vote-option--suspicious:active { border-color: #6B0F1A; }
+
+/* ─── Results ─── */
+.screen--results { justify-content: flex-start; gap: 0; overflow-y: auto; }
+.results-header { margin-bottom: 28px; margin-top: 16px; }
+.results-title {
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.results-subtitle { font-size: 14px; color: var(--text-muted); }
+.results-section { margin-bottom: 28px; }
+.results-section-label {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.results-vote-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.results-vote-label { font-size: 14px; color: var(--text-secondary); }
+.results-vote-name { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+.results-vote-name.suspicious { color: #FF8FA3; }
+.results-player-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.results-player-name { font-size: 16px; color: var(--text-primary); }
+.results-role-badge {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+.role--liar { background: #3a1a1a; color: #FF8FA3; }
+.role--analyst { background: #1a2a3a; color: #90E0EF; }
+.role--manipulator { background: #2a1a3a; color: #C8B6FF; }
+.role--loyal { background: #1a3a2a; color: #B7E4C7; }
+
+.results-winner-row {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.results-winner-name { display: block; font-size: 18px; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
+.results-winner-reason { font-size: 13px; color: var(--text-secondary); }
+.results-no-winner { font-size: 15px; color: var(--text-secondary); line-height: 1.6; font-style: italic; }
+.results-footer { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; padding-bottom: 16px; }

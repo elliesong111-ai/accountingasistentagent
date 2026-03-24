@@ -1,0 +1,30 @@
+[
+  {
+    "id": "liar",
+    "name": "LIAR",
+    "description": "At least one thing you say each round must be false. Never get caught.",
+    "goal": "Survive undetected through the final vote.",
+    "hint": "Commit fully. Hesitation is your enemy."
+  },
+  {
+    "id": "analyst",
+    "name": "ANALYST",
+    "description": "You are looking for the Liar. Watch closely. Trust your instincts.",
+    "goal": "Identify the Liar by the final vote.",
+    "hint": "Don't reveal yourself too early. Observe first."
+  },
+  {
+    "id": "manipulator",
+    "name": "MANIPULATOR",
+    "description": "You know nothing — but you survive by controlling what others believe.",
+    "goal": "Stay off suspicion. Protect the Liar if useful. Win quietly.",
+    "hint": "Make others feel more suspicious of each other."
+  },
+  {
+    "id": "loyal",
+    "name": "LOYAL",
+    "description": "You tell only the truth. Your honesty is your power.",
+    "goal": "Be voted Most Real at the end.",
+    "hint": "Don't perform honesty. Just be honest."
+  }
+]
