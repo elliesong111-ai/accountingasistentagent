@@ -333,6 +333,28 @@ body {
   width: 100%;
 }
 
+/* Role shown state — new fields */
+.role-card-mission {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.4;
+  margin-bottom: 20px;
+}
+.role-card-section-label {
+  font-size: 10px;
+  color: var(--text-faint);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.role-card-howto {
+  font-size: 15px;
+  color: var(--text-muted);
+  line-height: 1.65;
+  margin-bottom: 20px;
+}
+
 /* Role shown state */
 .role-card {
   width: 100%;
@@ -362,19 +384,93 @@ body {
   line-height: 1.65;
   margin-bottom: 20px;
 }
+/* role-card-wins is now smaller — just the condition */
 .role-card-divider {
   border: none;
   border-top: 1px solid var(--border);
   margin-bottom: 18px;
 }
 .role-card-wins {
-  font-size: 13px;
-  color: var(--text-faint);
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.65;
+}
+
+/* ============================================================
+   PREMISE SCREEN
+   ============================================================ */
+.premise-screen {
+  padding: 0 28px var(--safe-bottom);
+  justify-content: space-between;
+  overflow-y: auto;
+}
+
+.premise-top {
+  padding-top: 52px;
+  margin-bottom: 36px;
+}
+.premise-eyebrow {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.premise-headline {
+  font-size: clamp(40px, 11vw, 56px);
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  line-height: 1.05;
+  margin-bottom: 20px;
+}
+.premise-sub {
+  font-size: 16px;
+  color: var(--text-muted);
   line-height: 1.7;
 }
-.role-card-wins strong {
+
+.premise-roles {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-top: 1px solid var(--border);
+  margin-bottom: 32px;
+}
+.premise-role-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+.premise-role-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.premise-role-name {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.premise-role-desc {
+  font-size: 14px;
   color: var(--text-muted);
-  font-weight: 600;
+}
+
+.premise-bottom {
+  padding-bottom: 8px;
+}
+.premise-note {
+  font-size: 13px;
+  color: var(--text-faint);
+  text-align: center;
+  line-height: 1.7;
+  margin-bottom: 20px;
+  letter-spacing: 0.02em;
 }
 
 /* ============================================================
@@ -526,6 +622,71 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+/* Rules button */
+.rules-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.rules-btn:active {
+  background: var(--bg-card);
+}
+
+/* Rules overlay */
+.rules-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(10,10,10,0.94);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 100;
+}
+.rules-overlay-box {
+  width: 100%;
+  max-width: 360px;
+}
+.rules-overlay-title {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  text-align: center;
+}
+.rules-row {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+.rules-row:first-of-type {
+  border-top: 1px solid var(--border);
+}
+.rules-role-name {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+.rules-role-wins {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.55;
 }
 
 /* ============================================================

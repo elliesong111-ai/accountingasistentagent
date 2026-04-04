@@ -50,24 +50,32 @@ const ROLE_NAMES = ['Liar', 'Analyst', 'Manipulator', 'Loyal'];
 
 const ROLES = {
   Liar: {
-    label:  'LIAR',
-    goal:   'Blend in. Don\'t get called out.',
-    wins:   'You win if you\'re not the top Most Suspicious vote.',
+    label:   'LIAR',
+    mission: 'You are the only one lying.',
+    howto:   'Act normal. Don\'t overexplain. If someone doubts you — redirect.',
+    wins:    'You are NOT voted Most Suspicious.',
+    color:   '#ef4444',
   },
   Analyst: {
-    label:  'ANALYST',
-    goal:   'Figure out who\'s not being real.',
-    wins:   'You win if you voted for the actual Liar as Most Suspicious.',
+    label:   'ANALYST',
+    mission: 'Find the Liar.',
+    howto:   'Watch for cracks. Who hesitates? Who deflects? Trust your gut.',
+    wins:    'You vote for the actual Liar as Most Suspicious.',
+    color:   '#60a5fa',
   },
   Manipulator: {
-    label:  'MANIPULATOR',
-    goal:   'Influence how others vote.',
-    wins:   'You win if at least 2 players voted for the same Most Suspicious target — and you voted for them too.',
+    label:   'MANIPULATOR',
+    mission: 'Control who gets blamed.',
+    howto:   'Steer the room. Plant doubt. Make at least 2 others suspect the same person.',
+    wins:    '2+ players vote the same Most Suspicious target — and so did you.',
+    color:   '#fbbf24',
   },
   Loyal: {
-    label:  'LOYAL',
-    goal:   'Be consistent. Earn trust.',
-    wins:   'You win if you received the most Most Real votes.',
+    label:   'LOYAL',
+    mission: 'Be real. Earn trust.',
+    howto:   'Answer honestly. Stay consistent. Don\'t perform. Just be yourself.',
+    wins:    'You get the most Most Real votes.',
+    color:   '#4ade80',
   },
 };
 
@@ -87,7 +95,7 @@ const MINI_PHASES = [
 // ============================================================
 function freshState() {
   return {
-    screen: 'home',           // home | setup | role-reveal | session-start | game | vote | results
+    screen: 'home',           // home | setup | role-reveal | session-start | premise | game | vote | results
     mode:   null,             // 'quick' | 'mini'
     players: ['', '', '', ''],
     roles:   {},              // name -> role key
@@ -125,6 +133,9 @@ function freshState() {
 
     // Results
     winners: [],
+
+    // UI overlays
+    showRules: false,
   };
 }
 
@@ -389,15 +400,16 @@ function startSession() {
 // ============================================================
 function render() {
   const app = document.getElementById('app');
-  if (S.screen === 'home')           app.innerHTML = renderHome();
-  else if (S.screen === 'setup')     app.innerHTML = renderSetup();
+  if (S.screen === 'home')             app.innerHTML = renderHome();
+  else if (S.screen === 'setup')       app.innerHTML = renderSetup();
   else if (S.screen === 'role-reveal') app.innerHTML = renderRoleReveal();
+  else if (S.screen === 'premise')     app.innerHTML = renderPremise();
   else if (S.screen === 'session-start') app.innerHTML = renderSessionStart();
-  else if (S.screen === 'game')      app.innerHTML = S.showingPhaseTransition
-                                                       ? renderPhaseTransition()
-                                                       : renderGame();
-  else if (S.screen === 'vote')      app.innerHTML = renderVote();
-  else if (S.screen === 'results')   app.innerHTML = renderResults();
+  else if (S.screen === 'game')        app.innerHTML = S.showingPhaseTransition
+                                                         ? renderPhaseTransition()
+                                                         : renderGame();
+  else if (S.screen === 'vote')        app.innerHTML = renderVote();
+  else if (S.screen === 'results')     app.innerHTML = renderResults();
   bindEvents();
 }
 
@@ -491,12 +503,70 @@ function renderRoleReveal() {
   <div class="reveal-step-label">${S.revealIndex + 1} of ${total}</div>
   <div class="role-card anim-card">
     <div class="role-card-eyebrow">Your Role</div>
-    <div class="role-card-name">${roleData.label}</div>
-    <div class="role-card-goal">${esc(roleData.goal)}</div>
+    <div class="role-card-name" style="color:${roleData.color}">${roleData.label}</div>
+    <div class="role-card-mission">${esc(roleData.mission)}</div>
     <hr class="role-card-divider">
-    <div class="role-card-wins"><strong>Win:</strong> ${esc(roleData.wins)}</div>
+    <div class="role-card-section-label">HOW TO PLAY</div>
+    <div class="role-card-howto">${esc(roleData.howto)}</div>
+    <hr class="role-card-divider">
+    <div class="role-card-section-label">YOU WIN IF</div>
+    <div class="role-card-wins">${esc(roleData.wins)}</div>
   </div>
   <button class="btn btn-ghost" data-action="next-reveal">GOT IT — KEEP THIS SECRET</button>
+</div>`;
+}
+
+// ── PREMISE ──────────────────────────────────────────────────
+// Public screen — everyone reads this together before the game
+function renderPremise() {
+  const isMini = S.mode === 'mini';
+  return `
+<div class="screen premise-screen anim-fadein">
+  <div class="premise-top">
+    <div class="premise-eyebrow">Before you begin</div>
+    <div class="premise-headline">One of you<br>is lying.</div>
+    <div class="premise-sub">Everyone else has a secret role.<br>No one knows who has what.</div>
+  </div>
+
+  <div class="premise-roles">
+    <div class="premise-role-row">
+      <div class="premise-role-dot" style="background:#ef4444"></div>
+      <div>
+        <div class="premise-role-name">LIAR</div>
+        <div class="premise-role-desc">Blend in. Don't get caught.</div>
+      </div>
+    </div>
+    <div class="premise-role-row">
+      <div class="premise-role-dot" style="background:#60a5fa"></div>
+      <div>
+        <div class="premise-role-name">ANALYST</div>
+        <div class="premise-role-desc">Find the liar.</div>
+      </div>
+    </div>
+    <div class="premise-role-row">
+      <div class="premise-role-dot" style="background:#fbbf24"></div>
+      <div>
+        <div class="premise-role-name">MANIPULATOR</div>
+        <div class="premise-role-desc">Control who gets blamed.</div>
+      </div>
+    </div>
+    <div class="premise-role-row">
+      <div class="premise-role-dot" style="background:#4ade80"></div>
+      <div>
+        <div class="premise-role-name">LOYAL</div>
+        <div class="premise-role-desc">Be real. Earn trust.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="premise-bottom">
+    <div class="premise-note">
+      The real game happens between the people in this room.
+    </div>
+    <button class="btn btn-primary btn-lg" data-action="go-session-start">
+      EVERYONE'S READY
+    </button>
+  </div>
 </div>`;
 }
 
@@ -548,6 +618,19 @@ function renderGame() {
          <div class="game-no-cards-msg">No more cards this phase.<br>Continue the conversation.</div>
        </div>`;
 
+  const rulesOverlay = S.showRules ? `
+<div class="rules-overlay anim-fadein">
+  <div class="rules-overlay-box">
+    <div class="rules-overlay-title">WIN CONDITIONS</div>
+    ${Object.entries(ROLES).map(([key, r]) => `
+      <div class="rules-row">
+        <div class="rules-role-name" style="color:${r.color}">${r.label}</div>
+        <div class="rules-role-wins">${esc(r.wins)}</div>
+      </div>`).join('')}
+    <button class="btn btn-ghost" data-action="hide-rules" style="margin-top:20px">CLOSE</button>
+  </div>
+</div>` : '';
+
   return `
 <div class="screen game-screen">
   <div class="phase-bar">
@@ -558,13 +641,17 @@ function renderGame() {
       <div class="phase-dot" style="background:${color}"></div>
       ${label}
     </div>
-    <div class="game-timer${urgent ? ' urgent' : ''}">${timeStr}</div>
+    <div style="display:flex;align-items:center;gap:14px">
+      <div class="game-timer${urgent ? ' urgent' : ''}">${timeStr}</div>
+      <button class="rules-btn" data-action="show-rules">?</button>
+    </div>
   </div>
   <div class="game-card-area">${cardHtml}</div>
   <div class="game-footer">
     <button class="btn btn-primary" data-action="next-card">NEXT CARD</button>
     <button class="btn btn-danger" data-action="skip-to-vote">SKIP TO VOTE</button>
   </div>
+  ${rulesOverlay}
 </div>`;
 }
 
@@ -732,13 +819,28 @@ function onAction(e) {
       S.revealIndex++;
       S.revealShown = false;
       if (S.revealIndex >= S.players.length) {
-        S.screen = 'session-start';
+        S.screen = 'premise';
       }
+      render();
+      break;
+
+    case 'go-session-start':
+      S.screen = 'session-start';
       render();
       break;
 
     case 'begin-session':
       startSession();
+      break;
+
+    case 'show-rules':
+      S.showRules = true;
+      render();
+      break;
+
+    case 'hide-rules':
+      S.showRules = false;
+      render();
       break;
 
     case 'next-card':
