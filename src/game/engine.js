@@ -82,6 +82,19 @@ export function getNextPlayer(players, currentIndex) {
   return (currentIndex + 1) % players.length;
 }
 
+// Build initial abilitiesUsed map: { [playerIndex]: false }
+export function buildAbilitiesUsed(players) {
+  return Object.fromEntries(players.map((_, i) => [i, false]));
+}
+
+// Ability type constants — consumed by UI to know what flow to trigger
+export const ABILITY_TYPES = {
+  SKIP: 'skip',           // Liar: skip current card silently
+  CHALLENGE: 'challenge', // Analyst: ask one free-form question to chosen player
+  REDIRECT: 'redirect',   // Manipulator: reassign card target to chosen player
+  DECLARE: 'declare',     // Loyal: banner declaring next statement is the truth
+};
+
 export function evaluateWinners(players, votes) {
   // votes: { mostReal: playerIndex, mostSuspicious: playerIndex }
   // Count votes

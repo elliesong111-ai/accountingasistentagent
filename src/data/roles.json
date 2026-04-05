@@ -4,27 +4,55 @@
     "name": "LIAR",
     "description": "At least one thing you say each round must be false. Never get caught.",
     "goal": "Survive undetected through the final vote.",
-    "hint": "Commit fully. Hesitation is your enemy."
+    "hint": "Commit fully. Hesitation is your enemy.",
+    "ability": {
+      "name": "DENY",
+      "shortDesc": "Skip this card. No explanation required.",
+      "fullDesc": "Once per game, you may refuse to answer any prompt directed at you. Put the phone down. Say nothing. Everyone will wonder why.",
+      "type": "skip",
+      "timing": "on_your_turn"
+    }
   },
   {
     "id": "analyst",
     "name": "ANALYST",
     "description": "You are looking for the Liar. Watch closely. Trust your instincts.",
     "goal": "Identify the Liar by the final vote.",
-    "hint": "Don't reveal yourself too early. Observe first."
+    "hint": "Don't reveal yourself too early. Observe first.",
+    "ability": {
+      "name": "CHALLENGE",
+      "shortDesc": "Force someone to answer a direct question from you.",
+      "fullDesc": "Once per game, you may confront any player directly. You ask them one question — anything — and they must answer out loud, right now. No deflection.",
+      "type": "challenge",
+      "timing": "on_your_turn"
+    }
   },
   {
     "id": "manipulator",
     "name": "MANIPULATOR",
     "description": "You know nothing — but you survive by controlling what others believe.",
     "goal": "Stay off suspicion. Protect the Liar if useful. Win quietly.",
-    "hint": "Make others feel more suspicious of each other."
+    "hint": "Make others feel more suspicious of each other.",
+    "ability": {
+      "name": "REDIRECT",
+      "shortDesc": "Pass this card to someone else.",
+      "fullDesc": "Once per game, when a prompt is directed at you, you may redirect it to any other player instead. They must respond. You say nothing.",
+      "type": "redirect",
+      "timing": "on_your_turn"
+    }
   },
   {
     "id": "loyal",
     "name": "LOYAL",
     "description": "You tell only the truth. Your honesty is your power.",
     "goal": "Be voted Most Real at the end.",
-    "hint": "Don't perform honesty. Just be honest."
+    "hint": "Don't perform honesty. Just be honest.",
+    "ability": {
+      "name": "DECLARE",
+      "shortDesc": "Stake your credibility on your next statement.",
+      "fullDesc": "Once per game, before you speak, you may declare to the group: 'What I say next is the truth.' Everyone watches. If they believe you, your credibility is cemented. If they don't — that's revealing too.",
+      "type": "declare",
+      "timing": "on_your_turn"
+    }
   }
 ]
