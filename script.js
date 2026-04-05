@@ -44,38 +44,73 @@ const CARDS = {
 };
 
 // ============================================================
-// ROLES
+// FACTIONS & ROLES
 // ============================================================
-const ROLE_NAMES = ['Liar', 'Analyst', 'Manipulator', 'Loyal'];
+
+// Faction definitions — shown publicly on premise screen
+const FACTIONS = {
+  bad:     { label: 'BAD',     color: '#ef4444', desc: 'They are lying. They win together.' },
+  neutral: { label: 'NEUTRAL', color: '#fbbf24', desc: 'They play both sides. Own agenda.' },
+  good:    { label: 'GOOD',    color: '#4ade80', desc: 'They seek truth. Different methods.' },
+};
+
+// Which roles to use per player count
+const ROLE_SETS = {
+  4: ['Liar', 'Manipulator', 'Analyst', 'Loyal'],
+  6: ['Liar', 'Accomplice', 'Manipulator', 'Analyst', 'Loyal', 'Witness'],
+};
 
 const ROLES = {
+  // ── BAD ─────────────────────────────────────────────────
   Liar: {
     label:   'LIAR',
+    faction: 'bad',
     mission: 'You are the only one lying.',
     howto:   'Act normal. Don\'t overexplain. If someone doubts you — redirect.',
     wins:    'You are NOT voted Most Suspicious.',
     color:   '#ef4444',
   },
+  Accomplice: {
+    label:   'ACCOMPLICE',
+    faction: 'bad',
+    mission: 'You know who the Liar is. Protect them.',
+    howto:   'Look innocent. Redirect suspicion. Never reveal what you know.',
+    wins:    'The Liar is NOT voted Most Suspicious. (You win with the Liar.)',
+    color:   '#f97316',
+  },
+  // ── NEUTRAL ─────────────────────────────────────────────
+  Manipulator: {
+    label:   'MANIPULATOR',
+    faction: 'neutral',
+    mission: 'Control who gets blamed.',
+    howto:   'Steer the room. Plant doubt. Make at least 2 others suspect the same person.',
+    wins:    '2+ players vote the same Most Suspicious — and so did you.',
+    color:   '#fbbf24',
+  },
+  // ── GOOD ────────────────────────────────────────────────
   Analyst: {
     label:   'ANALYST',
+    faction: 'good',
     mission: 'Find the Liar.',
     howto:   'Watch for cracks. Who hesitates? Who deflects? Trust your gut.',
     wins:    'You vote for the actual Liar as Most Suspicious.',
     color:   '#60a5fa',
   },
-  Manipulator: {
-    label:   'MANIPULATOR',
-    mission: 'Control who gets blamed.',
-    howto:   'Steer the room. Plant doubt. Make at least 2 others suspect the same person.',
-    wins:    '2+ players vote the same Most Suspicious target — and so did you.',
-    color:   '#fbbf24',
-  },
   Loyal: {
     label:   'LOYAL',
+    faction: 'good',
     mission: 'Be real. Earn trust.',
     howto:   'Answer honestly. Stay consistent. Don\'t perform. Just be yourself.',
     wins:    'You get the most Most Real votes.',
     color:   '#4ade80',
+  },
+  Witness: {
+    label:   'WITNESS',
+    faction: 'good',
+    mission: 'You secretly know one person\'s side.',
+    howto:   'Use what you know carefully. Revealing too much makes you a target.',
+    wins:    'You vote for a Bad player as Most Suspicious.',
+    color:   '#a78bfa',
   },
 };
 
@@ -95,10 +130,12 @@ const MINI_PHASES = [
 // ============================================================
 function freshState() {
   return {
-    screen: 'home',           // home | setup | role-reveal | session-start | premise | game | vote | results
-    mode:   null,             // 'quick' | 'mini'
-    players: ['', '', '', ''],
-    roles:   {},              // name -> role key
+    screen:      'home',  // home|setup|role-reveal|premise|session-start|game|vote|results
+    mode:        null,    // 'quick' | 'mini'
+    playerCount: 4,       // 4 or 6
+    players:     ['', '', '', '', '', ''],
+    roles:       {},      // playerName -> role key
+    roleInfo:    {},      // playerName -> extra secret string (Accomplice/Witness)
 
     // Role reveal
     revealIndex: 0,
@@ -153,11 +190,30 @@ function shuffle(arr) {
   return a;
 }
 
-function assignRoles(players) {
-  const roles = shuffle([...ROLE_NAMES]);
-  const map = {};
-  players.forEach((p, i) => { map[p] = roles[i]; });
-  return map;
+// Assigns roles + computes secret bonus info for Accomplice / Witness
+function setupRoles(players) {
+  const n       = players.length;
+  const roleSet = shuffle([...(ROLE_SETS[n] || ROLE_SETS[4])]);
+  const roles   = {};
+  players.forEach((p, i) => { roles[p] = roleSet[i]; });
+
+  const roleInfo = {};
+  const liar     = players.find(p => roles[p] === 'Liar');
+
+  players.forEach(p => {
+    if (roles[p] === 'Accomplice') {
+      roleInfo[p] = 'The Liar is ' + liar + '.';
+    }
+    if (roles[p] === 'Witness') {
+      // Pick a random other player to learn the faction of
+      const others  = players.filter(x => x !== p);
+      const target  = others[Math.floor(Math.random() * others.length)];
+      const faction = FACTIONS[ROLES[roles[target]].faction].label;
+      roleInfo[p]   = target + ' is on the ' + faction + ' side.';
+    }
+  });
+
+  return { roles, roleInfo };
 }
 
 function fmt(seconds) {
@@ -225,48 +281,70 @@ function computeWinners() {
   const { votes, roles, players } = S;
   const { mostReal, mostSuspicious } = votes;
 
-  // Count votes
+  // Tally votes
   const realCount = {};
   const suspCount = {};
   players.forEach(p => { realCount[p] = 0; suspCount[p] = 0; });
   Object.values(mostReal).forEach(t       => { if (t) realCount[t]++; });
   Object.values(mostSuspicious).forEach(t => { if (t) suspCount[t]++; });
 
-  // Top suspicious
   const maxSupp = Math.max(...Object.values(suspCount));
   const topSupp = players.filter(p => suspCount[p] === maxSupp && maxSupp > 0);
-
-  // Top real
   const maxReal = Math.max(...Object.values(realCount));
 
-  const liarName       = players.find(p => roles[p] === 'Liar');
-  const analystName    = players.find(p => roles[p] === 'Analyst');
-  const manipName      = players.find(p => roles[p] === 'Manipulator');
-  const loyalName      = players.find(p => roles[p] === 'Loyal');
+  const liar = players.find(p => roles[p] === 'Liar');
+  const liarSafe = liar && !topSupp.includes(liar); // true = Liar survived
 
   const eligible = [];
 
-  // Liar wins: not in top suspicious
-  if (liarName && !topSupp.includes(liarName)) {
-    eligible.push({ player: liarName, role: 'Liar', priority: 3 });
-  }
-  // Analyst wins: voted Liar as most suspicious
-  if (analystName && mostSuspicious[analystName] === liarName) {
-    eligible.push({ player: analystName, role: 'Analyst', priority: 2 });
-  }
-  // Manipulator wins: >=2 players voted same target AND manipulator voted that target
-  if (manipName) {
-    const mv = mostSuspicious[manipName];
-    if (mv && suspCount[mv] >= 2) {
-      eligible.push({ player: manipName, role: 'Manipulator', priority: 1 });
-    }
-  }
-  // Loyal wins: most Most Real votes
-  if (loyalName && realCount[loyalName] === maxReal && maxReal > 0) {
-    eligible.push({ player: loyalName, role: 'Loyal', priority: 4 });
-  }
+  players.forEach(p => {
+    const role = roles[p];
+    if (!role) return;
 
-  // Sort by priority, cap at 2
+    switch (role) {
+      // BAD: Liar — not top suspicious
+      case 'Liar':
+        if (liarSafe)
+          eligible.push({ player: p, role, priority: 4 });
+        break;
+
+      // BAD: Accomplice — wins exactly when Liar wins
+      case 'Accomplice':
+        if (liarSafe)
+          eligible.push({ player: p, role, priority: 5 });
+        break;
+
+      // NEUTRAL: Manipulator — steered >=2 votes to same suspicious target
+      case 'Manipulator': {
+        const mv = mostSuspicious[p];
+        if (mv && suspCount[mv] >= 2)
+          eligible.push({ player: p, role, priority: 1 });
+        break;
+      }
+
+      // GOOD: Analyst — correctly named the Liar
+      case 'Analyst':
+        if (mostSuspicious[p] === liar)
+          eligible.push({ player: p, role, priority: 2 });
+        break;
+
+      // GOOD: Witness — voted for any Bad player as suspicious
+      case 'Witness': {
+        const target = mostSuspicious[p];
+        if (target && ROLES[roles[target]] && ROLES[roles[target]].faction === 'bad')
+          eligible.push({ player: p, role, priority: 3 });
+        break;
+      }
+
+      // GOOD: Loyal — most Most Real votes
+      case 'Loyal':
+        if (realCount[p] === maxReal && maxReal > 0)
+          eligible.push({ player: p, role, priority: 6 });
+        break;
+    }
+  });
+
+  // Priority: Manipulator(1) > Analyst(2) > Witness(3) > Liar(4) > Accomplice(5) > Loyal(6)
   eligible.sort((a, b) => a.priority - b.priority);
   return eligible.slice(0, 2);
 }
@@ -445,8 +523,9 @@ function renderHome() {
 
 // ── SETUP ────────────────────────────────────────────────────
 function renderSetup() {
-  const allFilled = S.players.filter(p => p.trim()).length === 4;
-  const inputs = [0,1,2,3].map(i => `
+  const n        = S.playerCount;
+  const allFilled = S.players.slice(0, n).filter(p => p.trim()).length === n;
+  const inputs   = Array.from({ length: n }, (_, i) => `
     <div class="input-wrap">
       <span class="input-num">${i+1}</span>
       <input
@@ -470,6 +549,15 @@ function renderSetup() {
     <span class="screen-nav-title">${S.mode === 'mini' ? 'Mini Session' : 'Quick Test'}</span>
   </div>
   <div class="setup-heading">Who's playing?</div>
+  <div class="count-toggle">
+    <button class="count-btn${n === 4 ? ' active' : ''}" data-action="set-count" data-count="4">4 Players</button>
+    <button class="count-btn${n === 6 ? ' active' : ''}" data-action="set-count" data-count="6">6 Players</button>
+  </div>
+  <div class="count-note">
+    ${n === 4
+      ? '1 Bad &nbsp;·&nbsp; 1 Neutral &nbsp;·&nbsp; 2 Good'
+      : '2 Bad &nbsp;·&nbsp; 1 Neutral &nbsp;·&nbsp; 3 Good'}
+  </div>
   <div class="player-inputs">${inputs}</div>
   <div class="setup-footer">
     <button class="btn btn-primary" data-action="confirm-setup" ${allFilled ? '' : 'disabled'}>
@@ -496,15 +584,24 @@ function renderRoleReveal() {
 </div>`;
   }
 
-  const roleKey  = S.roles[player];
-  const roleData = ROLES[roleKey];
+  const roleKey    = S.roles[player];
+  const roleData   = ROLES[roleKey];
+  const factionData = FACTIONS[roleData.faction];
+  const extra      = S.roleInfo[player]; // Accomplice/Witness bonus info
+
   return `
 <div class="screen reveal-screen anim-fadein">
   <div class="reveal-step-label">${S.revealIndex + 1} of ${total}</div>
   <div class="role-card anim-card">
-    <div class="role-card-eyebrow">Your Role</div>
+    <div class="role-card-top-row">
+      <div class="role-card-eyebrow">Your Role</div>
+      <div class="faction-badge" style="background:${factionData.color}20;color:${factionData.color};border-color:${factionData.color}40">
+        ${factionData.label}
+      </div>
+    </div>
     <div class="role-card-name" style="color:${roleData.color}">${roleData.label}</div>
     <div class="role-card-mission">${esc(roleData.mission)}</div>
+    ${extra ? `<div class="role-card-secret"><span class="secret-icon">⚑</span> ${esc(extra)}</div>` : ''}
     <hr class="role-card-divider">
     <div class="role-card-section-label">HOW TO PLAY</div>
     <div class="role-card-howto">${esc(roleData.howto)}</div>
@@ -517,55 +614,56 @@ function renderRoleReveal() {
 }
 
 // ── PREMISE ──────────────────────────────────────────────────
-// Public screen — everyone reads this together before the game
+// Public screen — everyone reads this together
 function renderPremise() {
-  const isMini = S.mode === 'mini';
+  const n          = S.playerCount;
+  const activeRoles = ROLE_SETS[n] || ROLE_SETS[4];
+
+  // Group roles by faction for display
+  const byFaction = { bad: [], neutral: [], good: [] };
+  activeRoles.forEach(rk => { byFaction[ROLES[rk].faction].push(rk); });
+
+  const factionBlock = (fKey) => {
+    const f     = FACTIONS[fKey];
+    const rKeys = byFaction[fKey];
+    if (!rKeys.length) return '';
+    return `
+      <div class="premise-faction-block">
+        <div class="premise-faction-header">
+          <div class="premise-faction-dot" style="background:${f.color}"></div>
+          <div class="premise-faction-label" style="color:${f.color}">${f.label}</div>
+          <div class="premise-faction-count">${rKeys.length}×</div>
+        </div>
+        <div class="premise-faction-roles">
+          ${rKeys.map(rk => `
+            <div class="premise-role-row">
+              <div class="premise-role-dot" style="background:${ROLES[rk].color}"></div>
+              <div>
+                <div class="premise-role-name">${ROLES[rk].label}</div>
+                <div class="premise-role-desc">${esc(ROLES[rk].mission)}</div>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+  };
+
   return `
 <div class="screen premise-screen anim-fadein">
   <div class="premise-top">
-    <div class="premise-eyebrow">Before you begin</div>
-    <div class="premise-headline">One of you<br>is lying.</div>
-    <div class="premise-sub">Everyone else has a secret role.<br>No one knows who has what.</div>
+    <div class="premise-eyebrow">Before you begin — read this together</div>
+    <div class="premise-headline">Someone<br>in this room<br>is lying.</div>
+    <div class="premise-sub">Everyone has a secret role. No one knows who has what.</div>
   </div>
 
-  <div class="premise-roles">
-    <div class="premise-role-row">
-      <div class="premise-role-dot" style="background:#ef4444"></div>
-      <div>
-        <div class="premise-role-name">LIAR</div>
-        <div class="premise-role-desc">Blend in. Don't get caught.</div>
-      </div>
-    </div>
-    <div class="premise-role-row">
-      <div class="premise-role-dot" style="background:#60a5fa"></div>
-      <div>
-        <div class="premise-role-name">ANALYST</div>
-        <div class="premise-role-desc">Find the liar.</div>
-      </div>
-    </div>
-    <div class="premise-role-row">
-      <div class="premise-role-dot" style="background:#fbbf24"></div>
-      <div>
-        <div class="premise-role-name">MANIPULATOR</div>
-        <div class="premise-role-desc">Control who gets blamed.</div>
-      </div>
-    </div>
-    <div class="premise-role-row">
-      <div class="premise-role-dot" style="background:#4ade80"></div>
-      <div>
-        <div class="premise-role-name">LOYAL</div>
-        <div class="premise-role-desc">Be real. Earn trust.</div>
-      </div>
-    </div>
+  <div class="premise-factions">
+    ${factionBlock('bad')}
+    ${factionBlock('neutral')}
+    ${factionBlock('good')}
   </div>
 
   <div class="premise-bottom">
-    <div class="premise-note">
-      The real game happens between the people in this room.
-    </div>
-    <button class="btn btn-primary btn-lg" data-action="go-session-start">
-      EVERYONE'S READY
-    </button>
+    <div class="premise-note">The real game happens between the people in this room.</div>
+    <button class="btn btn-primary btn-lg" data-action="go-session-start">EVERYONE'S READY</button>
   </div>
 </div>`;
 }
@@ -736,11 +834,19 @@ function renderResults() {
         </div>`).join('')
     : `<div class="no-winners-msg">No winners this round.<br>Everyone was equally suspicious.</div>`;
 
-  const rolesHtml = players.map(p => `
+  const rolesHtml = players.map(p => {
+    const rk = roles[p];
+    const rd = rk ? ROLES[rk] : null;
+    const fd = rd ? FACTIONS[rd.faction] : null;
+    return `
     <div class="role-list-row">
       <div class="role-list-player">${esc(p)}</div>
-      <div class="role-list-role">${roles[p] ? ROLES[roles[p]].label : ''}</div>
-    </div>`).join('');
+      <div class="role-list-right">
+        ${fd ? `<span class="faction-badge" style="background:${fd.color}20;color:${fd.color};border-color:${fd.color}40">${fd.label}</span>` : ''}
+        <div class="role-list-role" ${rd ? `style="color:${rd.color}"` : ''}>${rd ? rd.label : ''}</div>
+      </div>
+    </div>`;
+  }).join('');
 
   return `
 <div class="screen results-screen anim-fadeup">
@@ -786,11 +892,20 @@ function onAction(e) {
   switch (action) {
 
     case 'pick-mode':
-      S.mode    = btn.dataset.mode;
-      S.players = ['', '', '', ''];
-      S.screen  = 'setup';
+      S.mode        = btn.dataset.mode;
+      S.playerCount = 4;
+      S.players     = Array(6).fill('');
+      S.screen      = 'setup';
       render();
       break;
+
+    case 'set-count': {
+      const n = parseInt(btn.dataset.count, 10);
+      S.playerCount = n;
+      S.players     = Array(6).fill('');
+      render();
+      break;
+    }
 
     case 'go-home':
       clearTimer();
@@ -799,10 +914,12 @@ function onAction(e) {
       break;
 
     case 'confirm-setup': {
-      const filled = S.players.filter(p => p.trim());
-      if (filled.length < 4) return;
+      const filled = S.players.slice(0, S.playerCount).filter(p => p.trim());
+      if (filled.length < S.playerCount) return;
       S.players     = filled;
-      S.roles       = assignRoles(S.players);
+      const setup   = setupRoles(S.players);
+      S.roles       = setup.roles;
+      S.roleInfo    = setup.roleInfo;
       S.revealIndex = 0;
       S.revealShown = false;
       S.screen      = 'role-reveal';
@@ -896,11 +1013,10 @@ function onAction(e) {
 function onPlayerInput(e) {
   const idx = parseInt(e.target.dataset.idx, 10);
   S.players[idx] = e.target.value;
-  // Update start button without full re-render
   const startBtn = document.querySelector('[data-action="confirm-setup"]');
   if (startBtn) {
-    const filled = S.players.filter(p => p.trim()).length;
-    startBtn.disabled = filled < 4;
+    const filled = S.players.slice(0, S.playerCount).filter(p => p.trim()).length;
+    startBtn.disabled = filled < S.playerCount;
   }
 }
 
