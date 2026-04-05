@@ -1,7 +1,11 @@
 import promptsData from '../data/prompts.json';
 import rolesData from '../data/roles.json';
 
-export const PHASES = ['green', 'yellow', 'red', 'blue', 'black'];
+// Blue phase removed from active play.
+// Its prompts are merged into the Black pool as landing/decompression cards.
+// The structural "Blue moment" is now handled by the MidVote checkpoint screen,
+// inserted automatically between Red and Black phases.
+export const PHASES = ['green', 'yellow', 'red', 'black'];
 
 export const PHASE_META = {
   green: {
@@ -25,13 +29,6 @@ export const PHASE_META = {
     color: '#6B0F1A',
     textColor: '#FF8FA3',
   },
-  blue: {
-    label: 'BLUE',
-    mood: 'Release',
-    subtitle: 'Breathe. Let it settle.',
-    color: '#1B3A4B',
-    textColor: '#90E0EF',
-  },
   black: {
     label: 'BLACK',
     mood: 'Reflection',
@@ -41,10 +38,11 @@ export const PHASE_META = {
   },
 };
 
-// Cards per phase per mode
+// Cards per phase per mode.
+// Black pool = blue prompts + black prompts combined (blue opens, black closes).
 const PHASE_CARD_COUNTS = {
-  quick: { green: 2, yellow: 3, red: 2, blue: 1, black: 1 },
-  mini:  { green: 7, yellow: 10, red: 8, blue: 5, black: 4 },
+  quick: { green: 2, yellow: 3, red: 2, black: 3 },
+  mini:  { green: 7, yellow: 10, red: 8, black: 9 },
 };
 
 function shuffle(arr) {
@@ -61,9 +59,30 @@ export function buildDeck(mode) {
   const deck = [];
 
   for (const phase of PHASES) {
-    const available = promptsData[phase].filter((c) => c.modes.includes(mode));
-    const selected = shuffle(available).slice(0, counts[phase]);
-    selected.forEach((card) => deck.push({ ...card, phase }));
+    let available;
+
+    if (phase === 'black') {
+      // Merge blue (release/landing) + black (reflection) into one pool.
+      // Blue cards come first to act as decompression after the MidVote checkpoint.
+      const blueCards = (promptsData.blue || [])
+        .filter((c) => c.modes.includes(mode))
+        .map((c) => ({ ...c, phase: 'black' }));
+      const blackCards = (promptsData.black || [])
+        .filter((c) => c.modes.includes(mode))
+        .map((c) => ({ ...c, phase: 'black' }));
+
+      // Take up to 2 blue openers, fill rest from black pool
+      const blueOpeners = shuffle(blueCards).slice(0, Math.min(2, blueCards.length));
+      const needed = counts.black - blueOpeners.length;
+      const blackFill = shuffle(blackCards).slice(0, needed);
+      available = [...blueOpeners, ...blackFill];
+    } else {
+      available = shuffle(
+        promptsData[phase].filter((c) => c.modes.includes(mode))
+      ).slice(0, counts[phase]);
+    }
+
+    available.forEach((card) => deck.push({ ...card, phase }));
   }
 
   return deck;
@@ -96,8 +115,6 @@ export const ABILITY_TYPES = {
 };
 
 export function evaluateWinners(players, votes) {
-  // votes: { mostReal: playerIndex, mostSuspicious: playerIndex }
-  // Count votes
   const realTally = {};
   const suspiciousTally = {};
 
@@ -117,31 +134,23 @@ export function evaluateWinners(players, votes) {
   const loyal = players.find((p) => p.roleId === 'loyal');
 
   const liarIdx = players.indexOf(liar);
-  const analystIdx = players.indexOf(analyst);
   const manipulatorIdx = players.indexOf(manipulator);
   const loyalIdx = players.indexOf(loyal);
 
   const winners = [];
 
-  // Analyst wins if Liar is voted Most Suspicious
   if (String(mostSuspiciousIdx) === String(liarIdx)) {
     winners.push({ player: analyst, reason: 'Identified the Liar.' });
   }
-
-  // Liar wins if NOT voted Most Suspicious
   if (String(mostSuspiciousIdx) !== String(liarIdx)) {
     winners.push({ player: liar, reason: 'Never got caught.' });
   }
-
-  // Manipulator wins if not Most Suspicious AND Liar was caught
   if (
     String(mostSuspiciousIdx) === String(liarIdx) &&
     String(mostSuspiciousIdx) !== String(manipulatorIdx)
   ) {
     winners.push({ player: manipulator, reason: 'Stayed invisible while the Liar fell.' });
   }
-
-  // Loyal wins if voted Most Real
   if (String(mostRealIdx) === String(loyalIdx)) {
     winners.push({ player: loyal, reason: 'The most real person in the room.' });
   }

@@ -6,6 +6,7 @@ import PlayerSetup from './screens/PlayerSetup';
 import RoleReveal from './screens/RoleReveal';
 import PhaseCard from './screens/PhaseCard';
 import PromptCard from './screens/PromptCard';
+import MidVote from './screens/MidVote';
 import FinalVote from './screens/FinalVote';
 import Results from './screens/Results';
 import './styles/base.css';
@@ -17,6 +18,7 @@ const SCREEN = {
   ROLE_REVEAL: 'role_reveal',
   PHASE_CARD: 'phase_card',
   PROMPT_CARD: 'prompt_card',
+  MID_VOTE: 'mid_vote',       // checkpoint between Red and Black
   FINAL_VOTE: 'final_vote',
   RESULTS: 'results',
 };
@@ -30,9 +32,10 @@ const INITIAL_STATE = {
   currentPlayerIndex: 0,
   phaseIndex: 0,
   votes: null,
-  abilitiesUsed: {},      // { [playerIndex]: boolean }
-  redirectedTarget: null, // playerIndex | null — set when Manipulator redirects
-  declareActive: false,   // true when Loyal's DECLARE banner is showing
+  midVotes: null,             // [playerIndex, ...] — one per player, in player order
+  abilitiesUsed: {},
+  redirectedTarget: null,
+  declareActive: false,
 };
 
 function resetGameState() {
@@ -44,6 +47,7 @@ function resetGameState() {
     currentPlayerIndex: 0,
     phaseIndex: 0,
     votes: null,
+    midVotes: null,
     abilitiesUsed: {},
     redirectedTarget: null,
     declareActive: false,
@@ -59,11 +63,9 @@ export default function App() {
 
   const reset = useCallback(() => setState(INITIAL_STATE), []);
 
-  // ─── Setup handlers ───
+  // ─── Setup ───
 
-  const handleModeSelect = (mode) => {
-    go({ mode, screen: SCREEN.PLAYER_SETUP });
-  };
+  const handleModeSelect = (mode) => go({ mode, screen: SCREEN.PLAYER_SETUP });
 
   const handlePlayersReady = (names) => {
     const players = assignRoles(names);
@@ -71,31 +73,26 @@ export default function App() {
   };
 
   const handleRolesRevealed = () => {
-    const players = state.players;
     const deck = buildDeck(state.mode);
     go({
       deck,
       cardIndex: 0,
       currentPlayerIndex: 0,
       phaseIndex: 0,
-      abilitiesUsed: buildAbilitiesUsed(players),
+      abilitiesUsed: buildAbilitiesUsed(state.players),
       redirectedTarget: null,
       declareActive: false,
       screen: SCREEN.PHASE_CARD,
     });
   };
 
-  const handlePhaseBegin = () => {
-    go({ screen: SCREEN.PROMPT_CARD });
-  };
+  const handlePhaseBegin = () => go({ screen: SCREEN.PROMPT_CARD });
 
   // ─── Card navigation ───
 
   const advanceCard = (fromIndex) => {
     const { deck, currentPlayerIndex, players } = state;
     const nextIndex = fromIndex + 1;
-
-    // Clear any per-card transient state
     const clearTransient = { redirectedTarget: null, declareActive: false };
 
     if (nextIndex >= deck.length) {
@@ -109,6 +106,19 @@ export default function App() {
 
     if (nextPhase !== currentPhase) {
       const newPhaseIndex = PHASES.indexOf(nextPhase);
+
+      // Red → Black transition: intercept with mid-game checkpoint
+      if (currentPhase === 'red' && nextPhase === 'black') {
+        go({
+          ...clearTransient,
+          cardIndex: nextIndex,
+          currentPlayerIndex: nextPlayerIndex,
+          phaseIndex: newPhaseIndex,
+          screen: SCREEN.MID_VOTE,
+        });
+        return;
+      }
+
       go({
         ...clearTransient,
         cardIndex: nextIndex,
@@ -117,61 +127,55 @@ export default function App() {
         screen: SCREEN.PHASE_CARD,
       });
     } else {
-      go({
-        ...clearTransient,
-        cardIndex: nextIndex,
-        currentPlayerIndex: nextPlayerIndex,
-      });
+      go({ ...clearTransient, cardIndex: nextIndex, currentPlayerIndex: nextPlayerIndex });
     }
   };
 
   const handleNextCard = () => advanceCard(state.cardIndex);
 
-  // ─── Ability handlers ───
-
-  // Mark current player's ability as used
-  const markAbilityUsed = (playerIndex) => {
-    const next = { ...state.abilitiesUsed, [playerIndex]: true };
-    go({ abilitiesUsed: next });
-    return next;
+  // After mid-vote completes, store results then show Black's phase card
+  const handleMidVoteComplete = (suspicions) => {
+    go({ midVotes: suspicions, screen: SCREEN.PHASE_CARD });
   };
 
-  // LIAR — DENY: skip card, mark used
+  // ─── Ability handlers ───
+
+  const markAbilityUsed = (playerIndex) =>
+    ({ ...state.abilitiesUsed, [playerIndex]: true });
+
   const handleAbilitySkip = () => {
-    markAbilityUsed(state.currentPlayerIndex);
+    go({ abilitiesUsed: markAbilityUsed(state.currentPlayerIndex) });
     advanceCard(state.cardIndex);
   };
 
-  // ANALYST — CHALLENGE: mark used, then PromptCard shows challenge UI
-  // The challenge itself is a freeform conversation — app just surfaces it
   const handleAbilityChallenge = (targetPlayerIndex) => {
-    markAbilityUsed(state.currentPlayerIndex);
-    // We push a synthetic "challenge" action — stored as redirectedTarget so
-    // PromptCard knows to show the challenge framing for that target
-    go({ abilitiesUsed: { ...state.abilitiesUsed, [state.currentPlayerIndex]: true }, redirectedTarget: targetPlayerIndex });
+    go({
+      abilitiesUsed: markAbilityUsed(state.currentPlayerIndex),
+      redirectedTarget: targetPlayerIndex,
+    });
   };
 
-  // MANIPULATOR — REDIRECT: mark used, store new target
   const handleAbilityRedirect = (targetPlayerIndex) => {
-    markAbilityUsed(state.currentPlayerIndex);
-    go({ abilitiesUsed: { ...state.abilitiesUsed, [state.currentPlayerIndex]: true }, redirectedTarget: targetPlayerIndex });
+    go({
+      abilitiesUsed: markAbilityUsed(state.currentPlayerIndex),
+      redirectedTarget: targetPlayerIndex,
+    });
   };
 
-  // LOYAL — DECLARE: mark used, show banner on card
   const handleAbilityDeclare = () => {
-    markAbilityUsed(state.currentPlayerIndex);
-    go({ abilitiesUsed: { ...state.abilitiesUsed, [state.currentPlayerIndex]: true }, declareActive: true });
+    go({
+      abilitiesUsed: markAbilityUsed(state.currentPlayerIndex),
+      declareActive: true,
+    });
   };
 
-  const handleVoteComplete = (votes) => {
-    go({ votes, screen: SCREEN.RESULTS });
-  };
+  const handleVoteComplete = (votes) => go({ votes, screen: SCREEN.RESULTS });
 
   // ─── Render ───
 
   const {
-    screen, mode, players, deck, cardIndex,
-    currentPlayerIndex, phaseIndex, votes,
+    screen, players, deck, cardIndex,
+    currentPlayerIndex, phaseIndex, votes, midVotes,
     abilitiesUsed, redirectedTarget, declareActive,
   } = state;
 
@@ -217,7 +221,6 @@ export default function App() {
     const card = deck[cardIndex];
     const isLast = cardIndex === deck.length - 1;
     const currentPlayer = players[currentPlayerIndex];
-    const abilityUsed = abilitiesUsed[currentPlayerIndex] ?? false;
 
     return (
       <PromptCard
@@ -229,7 +232,7 @@ export default function App() {
         players={players}
         onNext={handleNextCard}
         isLast={isLast}
-        abilityUsed={abilityUsed}
+        abilityUsed={abilitiesUsed[currentPlayerIndex] ?? false}
         redirectedTarget={redirectedTarget}
         declareActive={declareActive}
         onAbilitySkip={handleAbilitySkip}
@@ -238,6 +241,10 @@ export default function App() {
         onAbilityDeclare={handleAbilityDeclare}
       />
     );
+  }
+
+  if (screen === SCREEN.MID_VOTE) {
+    return <MidVote players={players} onComplete={handleMidVoteComplete} />;
   }
 
   if (screen === SCREEN.FINAL_VOTE) {
@@ -249,6 +256,7 @@ export default function App() {
       <Results
         players={players}
         votes={votes}
+        midVotes={midVotes}
         onPlayAgain={() => go({ screen: SCREEN.MODE_SELECT, ...resetGameState() })}
         onEnd={reset}
       />

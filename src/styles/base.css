@@ -629,3 +629,132 @@ html, body, #root {
   transition: border-color 0.15s, transform 0.1s;
 }
 .ability-target-option:active { transform: scale(0.98); border-color: var(--text-muted); }
+
+/* ─── MidVote screens ─── */
+.screen--midvote-intro {
+  justify-content: space-between;
+  background: #0a0a0a;
+}
+.midvote-intro-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+}
+.midvote-eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.midvote-title {
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  line-height: 1;
+}
+.midvote-desc {
+  font-size: 16px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.midvote-desc--muted {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.screen--midvote-pass {
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+  background: var(--surface);
+}
+.midvote-pass-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+.midvote-pass-prompt { font-size: 18px; color: var(--text-secondary); font-weight: 400; }
+.midvote-pass-name   { font-size: 36px; font-weight: 700; color: var(--text-primary); }
+.midvote-pass-note   { font-size: 13px; color: var(--text-muted); }
+
+.screen--midvote-vote { justify-content: flex-start; }
+.midvote-vote-header { margin-bottom: 28px; margin-top: 48px; }
+.midvote-vote-question {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+  margin-top: 8px;
+}
+.midvote-vote-note {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 6px;
+  font-style: italic;
+}
+.midvote-vote-options { display: flex; flex-direction: column; gap: 10px; }
+.midvote-vote-option {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, transform 0.1s;
+}
+.midvote-vote-option:active { transform: scale(0.98); border-color: var(--text-muted); }
+
+/* ─── Results: mid-game comparison ─── */
+.results-midvote-intro {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 12px;
+  font-style: italic;
+}
+.results-midvote-row {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.results-midvote-voter {
+  font-size: 13px;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+.results-midvote-picks {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.results-midvote-pick {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+.results-midvote-pick strong { color: var(--text-primary); font-weight: 600; }
+.results-midvote-pick.changed strong { color: #FF8FA3; }
+.results-midvote-arrow { color: var(--text-muted); font-size: 12px; }
+.results-midvote-changed-badge {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #FF8FA3;
+  background: #3a1a1a;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
