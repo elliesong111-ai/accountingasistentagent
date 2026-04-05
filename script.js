@@ -170,7 +170,7 @@ const ROLES = {
     faction: 'neutral',
     mission: 'Move the crowd.',
     howto:   'You don\'t need to find the liar — you need to make 2+ people agree. Subtly plant seeds of suspicion toward the same person. Let others think it was their idea.',
-    wins:    '2+ other players vote for the same person as you.',
+    wins:    'At least 2 other players vote for the same person as you.',
     color:   '#fbbf24',
   },
   // ── GOOD ────────────────────────────────────────────────
@@ -220,6 +220,7 @@ function freshState() {
     mode:        null,    // 'quick' | 'mini'
     playerCount: 4,       // 4 or 6
     players:     ['', '', '', '', '', ''],
+    setupError:  '',
     roles:       {},      // playerName -> role key
     roleInfo:    {},      // playerName -> extra secret string (Accomplice/Witness)
 
@@ -326,7 +327,7 @@ function buildQuickCards() {
   const g  = shuffle(CARDS.green)[0];
   const ys = shuffle(CARDS.yellow).slice(0, 2);
   const r  = shuffle(CARDS.red)[0];
-  const b  = CARDS.black[0];
+  const b  = shuffle(CARDS.black)[0];
   return [
     { ...g,    phase: 'green'  },
     { ...ys[0],phase: 'yellow' },
@@ -360,13 +361,16 @@ function drawNextCard() {
 // WIN LOGIC — single vote: "who was lying?"
 // THE ACCUSED = player(s) with the most votes
 // ============================================================
+function tallyVotes() {
+  const voteCount = {};
+  S.players.forEach(p => { voteCount[p] = 0; });
+  Object.values(S.votes).forEach(t => { if (t) voteCount[t]++; });
+  return voteCount;
+}
+
 function computeWinners() {
   const { votes, roles, players } = S;
-
-  // Count votes
-  const voteCount = {};
-  players.forEach(p => { voteCount[p] = 0; });
-  Object.values(votes).forEach(t => { if (t) voteCount[t]++; });
+  const voteCount = tallyVotes();
 
   const maxVotes = Math.max(...Object.values(voteCount));
   const accused  = players.filter(p => voteCount[p] === maxVotes && maxVotes > 0);
@@ -392,10 +396,10 @@ function computeWinners() {
           eligible.push({ player: p, role, priority: 5 });
         break;
 
-      // MANIPULATOR: 2+ players voted for the same person as them
+      // MANIPULATOR: 2+ OTHER players voted for the same person as them (3+ total)
       case 'Manipulator': {
         const mv = votes[p];
-        if (mv && voteCount[mv] >= 2)
+        if (mv && voteCount[mv] >= 3)
           eligible.push({ player: p, role, priority: 1 });
         break;
       }
@@ -638,6 +642,7 @@ function renderSetup() {
   </div>
   <div class="player-inputs">${inputs}</div>
   <div class="setup-footer">
+    ${S.setupError ? `<div class="setup-error">${esc(S.setupError)}</div>` : ''}
     <button class="btn btn-primary" data-action="confirm-setup" ${allFilled ? '' : 'disabled'}>
       ASSIGN ROLES
     </button>
@@ -764,7 +769,7 @@ function renderSessionStart() {
     <em>Anyone</em> can tap Next Card.<br>
     Stay in character.
   </div>
-  <button class="btn btn-primary btn-lg" data-action="begin-session" style="width:100%">
+  <button class="btn btn-primary btn-lg" data-action="begin-session">
     BEGIN
   </button>
 </div>`;
@@ -804,7 +809,7 @@ function renderGame() {
 <div class="rules-overlay anim-fadein">
   <div class="rules-overlay-box">
     <div class="rules-overlay-title">WIN CONDITIONS</div>
-    ${Object.entries(ROLES).map(([key, r]) => `
+    ${Object.entries(ROLES).map(([, r]) => `
       <div class="rules-row">
         <div class="rules-role-name" style="color:${r.color}">${r.label}</div>
         <div class="rules-role-wins">${esc(r.wins)}</div>
@@ -823,7 +828,7 @@ function renderGame() {
       <div class="phase-dot" style="background:${color}"></div>
       ${label}
     </div>
-    <div style="display:flex;align-items:center;gap:14px">
+    <div class="game-header-right">
       <div class="game-timer${urgent ? ' urgent' : ''}">${timeStr}</div>
       <button class="rules-btn" data-action="show-rules">?</button>
     </div>
@@ -847,7 +852,7 @@ function renderPhaseTransition() {
   <div class="phase-trans-label" style="color:${color}">Phase Complete</div>
   <div class="phase-trans-name" style="color:${color}">${next.label}</div>
   <div class="phase-trans-duration">${durMin} minute${durMin !== 1 ? 's' : ''}</div>
-  <button class="btn btn-primary" data-action="advance-phase" style="width:100%">
+  <button class="btn btn-primary" data-action="advance-phase">
     CONTINUE
   </button>
 </div>`;
@@ -900,10 +905,7 @@ function renderVote() {
 function renderResults() {
   const { winners, roles, players, votes } = S;
 
-  // Tally final votes
-  const voteCount = {};
-  players.forEach(p => { voteCount[p] = 0; });
-  Object.values(votes).forEach(t => { if (t) voteCount[t]++; });
+  const voteCount = tallyVotes();
   const maxVotes = Math.max(...Object.values(voteCount));
   const accused  = players.filter(p => voteCount[p] === maxVotes && maxVotes > 0);
   const liar     = players.find(p => roles[p] === 'Liar');
@@ -972,7 +974,7 @@ function renderResults() {
 function bindEvents() {
   // Actions
   document.querySelectorAll('[data-action]').forEach(el => {
-    el.addEventListener('click', onAction, { passive: true });
+    el.addEventListener('click', onAction);
   });
   // Player name inputs — live
   document.querySelectorAll('.player-input').forEach(el => {
@@ -1011,6 +1013,13 @@ function onAction(e) {
     case 'confirm-setup': {
       const filled = S.players.slice(0, S.playerCount).filter(p => p.trim());
       if (filled.length < S.playerCount) return;
+      const lower = filled.map(p => p.trim().toLowerCase());
+      if (lower.length !== new Set(lower).size) {
+        S.setupError = 'Each player needs a unique name.';
+        render();
+        return;
+      }
+      S.setupError  = '';
       S.players     = filled;
       const setup   = setupRoles(S.players);
       S.roles       = setup.roles;
@@ -1102,6 +1111,7 @@ function onAction(e) {
 function onPlayerInput(e) {
   const idx = parseInt(e.target.dataset.idx, 10);
   S.players[idx] = e.target.value;
+  S.setupError = '';
   const startBtn = document.querySelector('[data-action="confirm-setup"]');
   if (startBtn) {
     const filled = S.players.slice(0, S.playerCount).filter(p => p.trim()).length;

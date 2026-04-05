@@ -327,6 +327,13 @@ body {
 .setup-footer {
   padding-top: 24px;
 }
+.setup-error {
+  font-size: 13px;
+  color: var(--red);
+  text-align: center;
+  margin-bottom: 12px;
+  letter-spacing: 0.04em;
+}
 
 /* ============================================================
    ROLE REVEAL SCREEN
@@ -765,6 +772,13 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+/* Game header right cluster (timer + rules button) */
+.game-header-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }
 
 /* Rules button */
