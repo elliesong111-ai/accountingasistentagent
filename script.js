@@ -4,42 +4,48 @@
    ============================================================ */
 
 // ============================================================
-// CARD DATA
+// CARD DATA — personal questions everyone must answer out loud.
+// The Liar must lie on at least one card per phase.
 // ============================================================
 const CARDS = {
+  // GREEN — warmup, low stakes, everyone shares something
   green: [
-    { title: 'LOOK',        text: 'Look at someone for 3 seconds. Don\'t say anything.' },
-    { title: 'VIBE',        text: 'Describe someone\'s vibe in one word.' },
-    { title: 'WHO FIRST',   text: 'Who would speak first in a tense moment?' },
-    { title: 'ENERGY',      text: 'Who has the strongest presence here?' },
-    { title: 'SMALL TRUTH', text: 'Say something small but true about yourself.' },
-    { title: 'SWITCH',      text: 'Switch seats with someone.' },
+    { title: 'FIRST INSTINCT',  text: 'Go around the room. Each person: one word for how they actually feel right now.' },
+    { title: 'SMALL TRUTH',     text: 'Say something true about yourself that people here probably don\'t know.' },
+    { title: 'QUICK PICK',      text: 'Who in this room would you call if something went wrong tonight?' },
+    { title: 'RATE IT',         text: 'On a scale of 1–10, how comfortable are you right now? Everyone answers.' },
+    { title: 'ONE THING',       text: 'Name one thing you noticed about someone at this table. Say it out loud.' },
+    { title: 'SWITCH',          text: 'Switch seats with someone. No explanation needed.' },
   ],
+  // YELLOW — getting personal, light pressure
   yellow: [
-    { title: 'IF I HAD TO', text: 'If you had to — who here do you trust the least?' },
-    { title: 'I FEEL LIKE', text: 'Say: "I feel like you\'re hiding something."' },
-    { title: 'WHO KNOWS',   text: 'Who here knows more than they say?' },
-    { title: 'NOT YOU',     text: 'Choose someone. Say: "Not you." Don\'t explain.' },
-    { title: 'ALMOST',      text: 'Say something true — but don\'t finish it.' },
-    { title: 'WATCH',       text: 'Watch someone closely this round.' },
+    { title: 'NO FILTER',       text: 'What\'s something you\'ve been thinking tonight but haven\'t said?' },
+    { title: 'REAL ANSWER',     text: 'When did you last lie to someone you actually care about?' },
+    { title: 'ALMOST SAID',     text: 'Start a sentence about someone here. Stop before the uncomfortable part.' },
+    { title: 'DECIDE',          text: 'Who in this room would take your side in a conflict? Who wouldn\'t?' },
+    { title: 'POINT BLANK',     text: 'Who here are you most uncertain about right now? Don\'t explain.' },
+    { title: 'IF I HAD TO',     text: 'If you had to pick — who here is the least like how they seem?' },
   ],
+  // RED — confrontation, direct pressure
   red: [
-    { title: 'SAY IT (SOFT)',  text: 'Say something honest about someone — but keep it light.' },
-    { title: 'CALL IT',        text: 'Ask someone: "Are you being real right now?"' },
-    { title: 'THEY DECIDE',    text: 'Choose someone. They decide who this applies to.' },
-    { title: 'DOUBLE EDGE',    text: 'Choose someone. One of you reveals something. They decide who.' },
-    { title: 'POINT',          text: 'Point to the person you trust the least.' },
-    { title: "DON'T EXPLAIN",  text: 'Say something about someone. Do not explain.' },
+    { title: 'CALL IT',         text: 'Look at one person. Ask them directly: "Are you being honest right now?"' },
+    { title: 'STAND',           text: 'Say one thing you actually believe about someone at this table.' },
+    { title: 'PICK SIDES',      text: 'Who do you trust most here? Who least? Say both. Be specific.' },
+    { title: 'PRESSURE',        text: 'If you had to guess who\'s been lying tonight — who, and why?' },
+    { title: 'NO TAKE BACK',    text: 'Say something about someone that you normally keep to yourself.' },
+    { title: 'FACE VALUE',      text: 'Choose someone. Tell them what you think they\'re actually feeling.' },
   ],
+  // BLUE — decompress, catch breath
   blue: [
-    { title: 'LAUGH IT OFF',   text: 'Turn the last moment into a joke.' },
-    { title: 'GROUP RESET',    text: 'Everyone answers: "What just happened?"' },
-    { title: 'CHANGE ENERGY',  text: 'Start a new topic for 30 seconds.' },
+    { title: 'FAKE ONE',        text: 'Everyone say one false thing about themselves. Group votes who did it best.' },
+    { title: 'BREATHE',         text: 'What just happened? One sentence each, fast.' },
+    { title: 'RESET',           text: 'Say something completely ordinary. Something from your actual day.' },
   ],
+  // BLACK — final reflection before vote
   black: [
-    { title: 'MOST REAL',   text: 'Who felt the most real tonight?' },
-    { title: 'STILL HIDING',text: 'Who is still hiding something?' },
-    { title: 'WHO CHANGED', text: 'Who feels different now?' },
+    { title: 'MOST REAL',       text: 'Who felt the most genuinely themselves tonight?' },
+    { title: 'STILL HIDING',    text: 'Who hasn\'t shown you who they really are yet?' },
+    { title: 'CHANGED',         text: 'Who here feels different to you now compared to when you sat down?' },
   ],
 };
 
@@ -65,51 +71,51 @@ const ROLES = {
   Liar: {
     label:   'LIAR',
     faction: 'bad',
-    mission: 'You are the only one lying.',
-    howto:   'Act normal. Don\'t overexplain. If someone doubts you — redirect.',
-    wins:    'You are NOT voted Most Suspicious.',
+    mission: 'Answer questions. Lie when it counts.',
+    howto:   'You must lie on at least one answer per phase — but make it believable. Don\'t panic when challenged. Redirect: "Why are you all watching me?" works better than denial.',
+    wins:    'Nobody votes you as the liar at the end.',
     color:   '#ef4444',
   },
   Accomplice: {
     label:   'ACCOMPLICE',
     faction: 'bad',
-    mission: 'You know who the Liar is. Protect them.',
-    howto:   'Look innocent. Redirect suspicion. Never reveal what you know.',
-    wins:    'The Liar is NOT voted Most Suspicious. (You win with the Liar.)',
+    mission: 'Protect the Liar. You know who they are.',
+    howto:   'Act normal. When others get close to suspecting the Liar, redirect attention elsewhere. Never react when the Liar gets called out — stay calm.',
+    wins:    'The Liar is not the most-voted person.',
     color:   '#f97316',
   },
   // ── NEUTRAL ─────────────────────────────────────────────
   Manipulator: {
     label:   'MANIPULATOR',
     faction: 'neutral',
-    mission: 'Control who gets blamed.',
-    howto:   'Steer the room. Plant doubt. Make at least 2 others suspect the same person.',
-    wins:    '2+ players vote the same Most Suspicious — and so did you.',
+    mission: 'Move the crowd.',
+    howto:   'You don\'t need to find the liar — you need to make 2+ people agree. Subtly plant seeds of suspicion toward the same person. Let others think it was their idea.',
+    wins:    '2+ other players vote for the same person as you.',
     color:   '#fbbf24',
   },
   // ── GOOD ────────────────────────────────────────────────
   Analyst: {
     label:   'ANALYST',
     faction: 'good',
-    mission: 'Find the Liar.',
-    howto:   'Watch for cracks. Who hesitates? Who deflects? Trust your gut.',
-    wins:    'You vote for the actual Liar as Most Suspicious.',
+    mission: 'Find the liar.',
+    howto:   'Watch how people answer questions — not what they say, but how. Who hesitates? Who gives too much detail? Who changes the subject? The liar will slip.',
+    wins:    'You vote for the actual Liar.',
     color:   '#60a5fa',
   },
   Loyal: {
     label:   'LOYAL',
     faction: 'good',
-    mission: 'Be real. Earn trust.',
-    howto:   'Answer honestly. Stay consistent. Don\'t perform. Just be yourself.',
-    wins:    'You get the most Most Real votes.',
+    mission: 'Be genuinely yourself.',
+    howto:   'Answer every question honestly. Stay consistent. Don\'t try to seem trustworthy — just be it. The Liar will eventually contrast against you.',
+    wins:    'Nobody votes you as the liar.',
     color:   '#4ade80',
   },
   Witness: {
     label:   'WITNESS',
     faction: 'good',
-    mission: 'You secretly know one person\'s side.',
-    howto:   'Use what you know carefully. Revealing too much makes you a target.',
-    wins:    'You vote for a Bad player as Most Suspicious.',
+    mission: 'You know one person\'s side. Use it.',
+    howto:   'You have one piece of secret information. Use it to vote correctly — but don\'t reveal it directly or you become a target.',
+    wins:    'You vote for someone on the Bad side.',
     color:   '#a78bfa',
   },
 };
@@ -159,14 +165,10 @@ function freshState() {
     quickCardIndex: 0,
     quickEndTime:   null,
 
-    // Vote
-    voteIndex:          0,
-    voteMostReal:       null,
-    voteMostSuspicious: null,
-    votes: {
-      mostReal:       {},   // voter -> target
-      mostSuspicious: {},
-    },
+    // Vote — single question: "Who was lying?"
+    voteIndex: 0,
+    votePick:  null,          // current voter's pick
+    votes:     {},            // voter -> target (who they think was lying)
 
     // Results
     winners: [],
@@ -275,76 +277,72 @@ function drawNextCard() {
 }
 
 // ============================================================
-// WIN LOGIC
+// WIN LOGIC — single vote: "who was lying?"
+// THE ACCUSED = player(s) with the most votes
 // ============================================================
 function computeWinners() {
   const { votes, roles, players } = S;
-  const { mostReal, mostSuspicious } = votes;
 
-  // Tally votes
-  const realCount = {};
-  const suspCount = {};
-  players.forEach(p => { realCount[p] = 0; suspCount[p] = 0; });
-  Object.values(mostReal).forEach(t       => { if (t) realCount[t]++; });
-  Object.values(mostSuspicious).forEach(t => { if (t) suspCount[t]++; });
+  // Count votes
+  const voteCount = {};
+  players.forEach(p => { voteCount[p] = 0; });
+  Object.values(votes).forEach(t => { if (t) voteCount[t]++; });
 
-  const maxSupp = Math.max(...Object.values(suspCount));
-  const topSupp = players.filter(p => suspCount[p] === maxSupp && maxSupp > 0);
-  const maxReal = Math.max(...Object.values(realCount));
-
-  const liar = players.find(p => roles[p] === 'Liar');
-  const liarSafe = liar && !topSupp.includes(liar); // true = Liar survived
+  const maxVotes = Math.max(...Object.values(voteCount));
+  const accused  = players.filter(p => voteCount[p] === maxVotes && maxVotes > 0);
+  const liar     = players.find(p => roles[p] === 'Liar');
+  const liarSafe = liar && !accused.includes(liar);
 
   const eligible = [];
 
   players.forEach(p => {
     const role = roles[p];
     if (!role) return;
-
     switch (role) {
-      // BAD: Liar — not top suspicious
+
+      // LIAR: not the most-voted person
       case 'Liar':
         if (liarSafe)
           eligible.push({ player: p, role, priority: 4 });
         break;
 
-      // BAD: Accomplice — wins exactly when Liar wins
+      // ACCOMPLICE: wins when Liar wins
       case 'Accomplice':
         if (liarSafe)
           eligible.push({ player: p, role, priority: 5 });
         break;
 
-      // NEUTRAL: Manipulator — steered >=2 votes to same suspicious target
+      // MANIPULATOR: 2+ players voted for the same person as them
       case 'Manipulator': {
-        const mv = mostSuspicious[p];
-        if (mv && suspCount[mv] >= 2)
+        const mv = votes[p];
+        if (mv && voteCount[mv] >= 2)
           eligible.push({ player: p, role, priority: 1 });
         break;
       }
 
-      // GOOD: Analyst — correctly named the Liar
+      // ANALYST: voted for the actual Liar
       case 'Analyst':
-        if (mostSuspicious[p] === liar)
+        if (votes[p] === liar)
           eligible.push({ player: p, role, priority: 2 });
         break;
 
-      // GOOD: Witness — voted for any Bad player as suspicious
+      // WITNESS: voted for any Bad player
       case 'Witness': {
-        const target = mostSuspicious[p];
+        const target = votes[p];
         if (target && ROLES[roles[target]] && ROLES[roles[target]].faction === 'bad')
           eligible.push({ player: p, role, priority: 3 });
         break;
       }
 
-      // GOOD: Loyal — most Most Real votes
+      // LOYAL: received zero votes
       case 'Loyal':
-        if (realCount[p] === maxReal && maxReal > 0)
+        if (voteCount[p] === 0)
           eligible.push({ player: p, role, priority: 6 });
         break;
     }
   });
 
-  // Priority: Manipulator(1) > Analyst(2) > Witness(3) > Liar(4) > Accomplice(5) > Loyal(6)
+  // Priority: Manipulator > Analyst > Witness > Liar > Accomplice > Loyal
   eligible.sort((a, b) => a.priority - b.priority);
   return eligible.slice(0, 2);
 }
@@ -443,10 +441,10 @@ function advancePhase() {
 
 function goToVote() {
   clearTimer();
-  S.screen               = 'vote';
-  S.voteIndex            = 0;
-  S.voteMostReal         = null;
-  S.voteMostSuspicious   = null;
+  S.screen     = 'vote';
+  S.voteIndex  = 0;
+  S.votePick   = null;
+  S.votes      = {};
   render();
 }
 
@@ -650,9 +648,15 @@ function renderPremise() {
   return `
 <div class="screen premise-screen anim-fadein">
   <div class="premise-top">
-    <div class="premise-eyebrow">Before you begin — read this together</div>
+    <div class="premise-eyebrow">Read this together</div>
     <div class="premise-headline">Someone<br>in this room<br>is lying.</div>
-    <div class="premise-sub">Everyone has a secret role. No one knows who has what.</div>
+  </div>
+
+  <div class="premise-rules">
+    <div class="premise-rule"><span class="premise-rule-num">1</span>Cards come up. Everyone answers out loud.</div>
+    <div class="premise-rule"><span class="premise-rule-num">2</span>The Liar must lie — at least once per phase.</div>
+    <div class="premise-rule"><span class="premise-rule-num">3</span>At the end, each person votes: who was lying?</div>
+    <div class="premise-rule"><span class="premise-rule-num">4</span>Your secret role decides how you win.</div>
   </div>
 
   <div class="premise-factions">
@@ -774,11 +778,10 @@ function renderVote() {
   const player = S.players[S.voteIndex];
   const others = S.players.filter(p => p !== player);
 
-  const makeOpts = (type, selected) => others.map(p => `
+  const opts = others.map(p => `
     <button
-      class="vote-option${selected === p ? ' selected' : ''}"
+      class="vote-option${S.votePick === p ? ' selected' : ''}"
       data-action="cast-vote"
-      data-type="${type}"
       data-target="${esc(p)}"
     >
       ${esc(p)}
@@ -786,8 +789,6 @@ function renderVote() {
         <div class="vote-option-check-inner"></div>
       </div>
     </button>`).join('');
-
-  const canSubmit = S.voteMostReal && S.voteMostSuspicious;
 
   return `
 <div class="screen vote-screen anim-fadein">
@@ -797,23 +798,19 @@ function renderVote() {
     <div class="vote-private-tag">Vote is private</div>
   </div>
 
-  <div class="vote-section">
-    <div class="vote-section-label">Most Real</div>
-    <div class="vote-options">${makeOpts('real', S.voteMostReal)}</div>
-  </div>
+  <div class="vote-question">Who was lying?</div>
 
   <div class="vote-section">
-    <div class="vote-section-label">Most Suspicious</div>
-    <div class="vote-options">${makeOpts('suspicious', S.voteMostSuspicious)}</div>
+    <div class="vote-options">${opts}</div>
   </div>
 
-  <div class="vote-footer">
+  <div class="vote-footer mt-auto">
     <button
       class="btn btn-primary"
       data-action="submit-vote"
-      ${canSubmit ? '' : 'disabled'}
+      ${S.votePick ? '' : 'disabled'}
     >
-      SUBMIT VOTE ${S.voteIndex + 1} / ${S.players.length}
+      LOCK IN VOTE &nbsp;${S.voteIndex + 1} / ${S.players.length}
     </button>
   </div>
 </div>`;
@@ -821,7 +818,23 @@ function renderVote() {
 
 // ── RESULTS ──────────────────────────────────────────────────
 function renderResults() {
-  const { winners, roles, players } = S;
+  const { winners, roles, players, votes } = S;
+
+  // Tally final votes
+  const voteCount = {};
+  players.forEach(p => { voteCount[p] = 0; });
+  Object.values(votes).forEach(t => { if (t) voteCount[t]++; });
+  const maxVotes = Math.max(...Object.values(voteCount));
+  const accused  = players.filter(p => voteCount[p] === maxVotes && maxVotes > 0);
+  const liar     = players.find(p => roles[p] === 'Liar');
+  const liarCaught = accused.includes(liar);
+
+  const verdictHtml = `
+    <div class="verdict-block ${liarCaught ? 'verdict-caught' : 'verdict-safe'}">
+      <div class="verdict-eyebrow">${liarCaught ? 'The room found the liar.' : 'The liar got away.'}</div>
+      <div class="verdict-accused">${accused.map(esc).join(' & ')}</div>
+      <div class="verdict-sub">${accused.length > 1 ? 'were' : 'was'} voted as the liar — ${liarCaught ? `and ${liar} actually was.` : `but ${liar} was the actual Liar.`}</div>
+    </div>`;
 
   const winnersHtml = winners.length
     ? winners.map(w => `
@@ -854,6 +867,8 @@ function renderResults() {
     <div class="results-eyebrow">The Verdict</div>
     <div class="results-title">RESULTS</div>
   </div>
+
+  ${verdictHtml}
 
   <div class="results-section">
     <div class="results-section-label">${winners.length ? `Winner${winners.length > 1 ? 's' : ''}` : 'No Winners'}</div>
@@ -977,23 +992,17 @@ function onAction(e) {
       advancePhase();
       break;
 
-    case 'cast-vote': {
-      const type   = btn.dataset.type;
-      const target = btn.dataset.target;
-      if (type === 'real')       S.voteMostReal       = target;
-      if (type === 'suspicious') S.voteMostSuspicious = target;
+    case 'cast-vote':
+      S.votePick = btn.dataset.target;
       render();
       break;
-    }
 
     case 'submit-vote': {
-      if (!S.voteMostReal || !S.voteMostSuspicious) return;
-      const voter = S.players[S.voteIndex];
-      S.votes.mostReal[voter]       = S.voteMostReal;
-      S.votes.mostSuspicious[voter] = S.voteMostSuspicious;
+      if (!S.votePick) return;
+      const voter    = S.players[S.voteIndex];
+      S.votes[voter] = S.votePick;
       S.voteIndex++;
-      S.voteMostReal       = null;
-      S.voteMostSuspicious = null;
+      S.votePick = null;
       if (S.voteIndex >= S.players.length) {
         S.winners = computeWinners();
         S.screen  = 'results';

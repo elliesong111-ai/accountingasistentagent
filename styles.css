@@ -503,6 +503,33 @@ body {
 }
 
 /* Faction blocks inside premise */
+/* Numbered rules on premise */
+.premise-rules {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 28px;
+  border-top: 1px solid var(--border);
+}
+.premise-rule {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 15px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.premise-rule-num {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-faint);
+  letter-spacing: 0.1em;
+  flex-shrink: 0;
+  width: 16px;
+}
+
 .premise-factions {
   display: flex;
   flex-direction: column;
@@ -843,6 +870,15 @@ body {
   padding: 0 24px var(--safe-bottom);
 }
 
+/* Vote question — big, central */
+.vote-question {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-align: center;
+  margin-bottom: 28px;
+}
+
 .vote-header {
   text-align: center;
   padding: 40px 0 32px;
@@ -943,6 +979,44 @@ body {
 .vote-footer {
   padding-top: 8px;
   padding-bottom: 4px;
+}
+
+/* ============================================================
+   VERDICT BLOCK
+   ============================================================ */
+.verdict-block {
+  border-radius: var(--radius-lg);
+  padding: 28px 24px;
+  margin-bottom: 32px;
+  text-align: center;
+}
+.verdict-caught {
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.25);
+}
+.verdict-safe {
+  background: rgba(251,191,36,0.08);
+  border: 1px solid rgba(251,191,36,0.2);
+}
+.verdict-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+.verdict-accused {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  margin-bottom: 10px;
+}
+.verdict-caught .verdict-accused { color: #ef4444; }
+.verdict-safe   .verdict-accused { color: #fbbf24; }
+.verdict-sub {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.6;
 }
 
 /* ============================================================
