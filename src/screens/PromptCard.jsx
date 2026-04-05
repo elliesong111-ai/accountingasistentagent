@@ -22,6 +22,7 @@ export default function PromptCard({
   const [showAbilityModal, setShowAbilityModal] = useState(false);
   const meta = PHASE_META[card.phase];
   const ability = currentPlayer.role.ability;
+  const isPressure = card.type === 'PRESSURE';
 
   // Determine effective target player
   const effectiveTarget = () => {
@@ -55,9 +56,17 @@ export default function PromptCard({
 
   return (
     <div
-      className="screen screen--prompt"
+      className={`screen screen--prompt ${isPressure ? 'screen--prompt-pressure' : ''}`}
       style={{ '--phase-color': meta.color, '--phase-text': meta.textColor }}
     >
+      {/* PRESSURE indicator strip */}
+      {isPressure && (
+        <div className="pressure-strip">
+          <span className="pressure-strip-dot" />
+          <span className="pressure-strip-label">Pressure</span>
+        </div>
+      )}
+
       {/* DECLARE banner — shown after Loyal activates their ability */}
       {declareActive && (
         <div className="declare-banner">
@@ -71,8 +80,7 @@ export default function PromptCard({
       <div className="prompt-top">
         <div className="prompt-phase-dot" />
         <div className="prompt-meta">
-          <span className="prompt-type">
-            {/* Show special type label when ability is in effect */}
+          <span className={`prompt-type ${isPressure ? 'prompt-type--pressure' : ''}`}>
             {redirectedTarget !== null && ability.type === ABILITY_TYPES.CHALLENGE
               ? 'CHALLENGE'
               : redirectedTarget !== null && ability.type === ABILITY_TYPES.REDIRECT

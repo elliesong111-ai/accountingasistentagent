@@ -466,6 +466,43 @@ html, body, #root {
 .results-no-winner { font-size: 15px; color: var(--text-secondary); line-height: 1.6; font-style: italic; }
 .results-footer { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; padding-bottom: 16px; }
 
+/* ─── PRESSURE card treatment ─── */
+.screen--prompt-pressure {
+  /* Subtle warm tint on the bg to signal elevated intensity */
+  background: #0e0a0a;
+}
+
+.pressure-strip {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 4px;
+}
+.pressure-strip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #FF8FA3;
+  flex-shrink: 0;
+  animation: pressure-pulse 2s ease-in-out infinite;
+}
+@keyframes pressure-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+.pressure-strip-label {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #FF8FA3;
+  opacity: 0.8;
+}
+
+.prompt-type--pressure {
+  color: #FF8FA3 !important;
+  opacity: 1;
+}
+
 /* ─── Ability button (on PromptCard) ─── */
 .btn--ability {
   background: transparent;

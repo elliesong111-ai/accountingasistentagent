@@ -48,6 +48,24 @@
       "text": "Name the person at this table you've been most curious about lately.",
       "target": "current",
       "modes": ["mini"]
+    },
+    {
+      "id": "g8",
+      "type": "STATEMENT",
+      "text": "Tell the group something specific that happened to you in the last three days. Where, when, who was there.",
+      "target": "current",
+      "modes": ["mini"],
+      "pressure": ["liar"],
+      "pressureNote": "Specificity makes fabrication expensive — the Liar must commit to verifiable details."
+    },
+    {
+      "id": "g9",
+      "type": "OBSERVATION",
+      "text": "Look at everyone at this table. Who seems most like themselves right now?",
+      "target": "current",
+      "modes": ["mini"],
+      "pressure": ["analyst"],
+      "pressureNote": "Primes the Analyst to start building a baseline read early."
     }
   ],
   "yellow": [
@@ -120,6 +138,51 @@
       "text": "Who at this table do you think has been the most honest tonight? Point to them.",
       "target": "all",
       "modes": ["mini"]
+    },
+    {
+      "id": "y11",
+      "type": "PRESSURE",
+      "text": "Go back to something you said earlier tonight. Say it again — exactly. Word for word.",
+      "target": "current",
+      "modes": ["quick", "mini"],
+      "pressure": ["liar"],
+      "pressureNote": "Liars rarely commit their lies to precise memory. Repetition exposes inconsistency."
+    },
+    {
+      "id": "y12",
+      "type": "PRESSURE",
+      "text": "Name one detail from what someone said tonight that didn't quite add up. Be specific.",
+      "target": "current",
+      "modes": ["quick", "mini"],
+      "pressure": ["analyst"],
+      "pressureNote": "Activates the Analyst's investigative instinct and forces them to show their hand."
+    },
+    {
+      "id": "y13",
+      "type": "PRESSURE",
+      "text": "Has anyone at this table said something tonight that changed how you see someone else? What was it?",
+      "target": "current",
+      "modes": ["mini"],
+      "pressure": ["manipulator"],
+      "pressureNote": "Makes the Manipulator's influence visible — if they've been working the room, this surfaces it."
+    },
+    {
+      "id": "y14",
+      "type": "PRESSURE",
+      "text": "Everyone: on a scale of 1 to 3, how honest do you think this person has been tonight? Hold up fingers at the same time.",
+      "target": "current",
+      "modes": ["mini"],
+      "pressure": ["liar"],
+      "pressureNote": "Simultaneous reveal prevents social anchoring. Direct pressure on whoever holds the card."
+    },
+    {
+      "id": "y15",
+      "type": "PRESSURE",
+      "text": "Tell the group one thing you're genuinely uncertain about tonight — not about yourself, about someone else.",
+      "target": "current",
+      "modes": ["mini"],
+      "pressure": ["loyal"],
+      "pressureNote": "Rewards the Loyal for verbalizing honest doubt. Creates contrast with performers."
     }
   ],
   "red": [
@@ -178,6 +241,51 @@
       "text": "Everyone asks the current player the same question simultaneously: 'What are you hiding?'",
       "target": "all",
       "modes": ["mini"]
+    },
+    {
+      "id": "r9",
+      "type": "PRESSURE",
+      "text": "The group picks one thing you said tonight and asks you to prove it's true. You have 30 seconds.",
+      "target": "current",
+      "modes": ["quick", "mini"],
+      "pressure": ["liar"],
+      "pressureNote": "Verification demand. The Liar must either double down or retreat. Both are tells."
+    },
+    {
+      "id": "r10",
+      "type": "PRESSURE",
+      "text": "Make your accusation. Name someone at this table, say exactly what you think they're hiding, and don't qualify it.",
+      "target": "current",
+      "modes": ["quick", "mini"],
+      "pressure": ["analyst"],
+      "pressureNote": "Forces the Analyst to commit. Vague accusations waste the moment."
+    },
+    {
+      "id": "r11",
+      "type": "PRESSURE",
+      "text": "Everyone look at the current player for five seconds. No talking. Then say one word about what you see.",
+      "target": "all",
+      "modes": ["mini"],
+      "pressure": ["liar", "manipulator"],
+      "pressureNote": "Sustained eye contact and group labeling is deeply uncomfortable for anyone performing."
+    },
+    {
+      "id": "r12",
+      "type": "PRESSURE",
+      "text": "Say one uncomfortable truth about yourself — not a story, not a performance. One sentence. Now.",
+      "target": "current",
+      "modes": ["quick", "mini"],
+      "pressure": ["loyal"],
+      "pressureNote": "The Loyal's natural territory. Creates a visible honesty benchmark for the group."
+    },
+    {
+      "id": "r13",
+      "type": "PRESSURE",
+      "text": "Who at this table has been trying hardest to control how they're seen? Point to them. They respond.",
+      "target": "all",
+      "modes": ["mini"],
+      "pressure": ["manipulator"],
+      "pressureNote": "The Manipulator's core behavior named directly."
     }
   ],
   "blue": [
@@ -245,6 +353,24 @@
       "text": "Everyone: one word for how you feel right now compared to when you started.",
       "target": "all",
       "modes": ["quick", "mini"]
+    },
+    {
+      "id": "k5",
+      "type": "CLOSING",
+      "text": "Tell the person you trusted least tonight why you feel that way. Directly, to their face.",
+      "target": "current",
+      "modes": ["mini"],
+      "pressure": ["analyst", "liar"],
+      "pressureNote": "Post-game confrontation that reveals whether suspicions hardened or softened."
+    },
+    {
+      "id": "k6",
+      "type": "CLOSING",
+      "text": "Everyone: did you play as yourself tonight, or as a version of yourself? Just nod or shake your head.",
+      "target": "all",
+      "modes": ["mini"],
+      "pressure": ["liar", "manipulator"],
+      "pressureNote": "Non-verbal response reduces the ability to craft an answer. Gesture is harder to fake."
     }
   ]
 }

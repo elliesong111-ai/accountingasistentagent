@@ -54,12 +54,34 @@ function shuffle(arr) {
   return a;
 }
 
+// Guarantee that Yellow and Red each contain at least 1 PRESSURE card
+// targeting the Liar. This ensures every game has at least 2 structural
+// moments where the Liar faces asymmetric pressure — regardless of shuffle.
+function buildPhaseCards(phase, mode, count) {
+  const pool = promptsData[phase].filter((c) => c.modes.includes(mode));
+
+  const pressureCards = pool.filter((c) => c.type === 'PRESSURE');
+  const regularCards  = pool.filter((c) => c.type !== 'PRESSURE');
+
+  // Reserve 1 pressure card slot for phases that have them
+  if (pressureCards.length > 0 && count >= 2) {
+    const guaranteed = shuffle(pressureCards).slice(0, 1);
+    const usedIds = new Set(guaranteed.map((c) => c.id));
+    const remaining = shuffle(
+      [...pressureCards, ...regularCards].filter((c) => !usedIds.has(c.id))
+    ).slice(0, count - 1);
+    return [...guaranteed, ...remaining];
+  }
+
+  return shuffle(pool).slice(0, count);
+}
+
 export function buildDeck(mode) {
   const counts = PHASE_CARD_COUNTS[mode];
   const deck = [];
 
   for (const phase of PHASES) {
-    let available;
+    let cards;
 
     if (phase === 'black') {
       // Merge blue (release/landing) + black (reflection) into one pool.
@@ -71,18 +93,15 @@ export function buildDeck(mode) {
         .filter((c) => c.modes.includes(mode))
         .map((c) => ({ ...c, phase: 'black' }));
 
-      // Take up to 2 blue openers, fill rest from black pool
       const blueOpeners = shuffle(blueCards).slice(0, Math.min(2, blueCards.length));
       const needed = counts.black - blueOpeners.length;
       const blackFill = shuffle(blackCards).slice(0, needed);
-      available = [...blueOpeners, ...blackFill];
+      cards = [...blueOpeners, ...blackFill];
     } else {
-      available = shuffle(
-        promptsData[phase].filter((c) => c.modes.includes(mode))
-      ).slice(0, counts[phase]);
+      cards = buildPhaseCards(phase, mode, counts[phase]);
     }
 
-    available.forEach((card) => deck.push({ ...card, phase }));
+    cards.forEach((card) => deck.push({ ...card, phase }));
   }
 
   return deck;
