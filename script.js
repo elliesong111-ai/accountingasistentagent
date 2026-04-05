@@ -4,49 +4,129 @@
    ============================================================ */
 
 // ============================================================
-// CARD DATA — personal questions everyone must answer out loud.
-// The Liar must lie on at least one card per phase.
+// CARD DATA
+// Design rule: every card is a trap — no answer is completely safe.
+// GREEN  = action + light observation (30% action, warm up)
+// YELLOW = personal, forces you to name someone
+// RED    = direct confrontation, nowhere to hide
+// BLUE   = decompress, but with a twist
+// BLACK  = final reflection, sets up the vote
+// Everyone answers each card out loud.
+// The Liar must lie on at least one answer per phase.
 // ============================================================
 const CARDS = {
-  // GREEN — warmup, low stakes, everyone shares something
+
   green: [
-    { title: 'FIRST INSTINCT',  text: 'Go around the room. Each person: one word for how they actually feel right now.' },
-    { title: 'SMALL TRUTH',     text: 'Say something true about yourself that people here probably don\'t know.' },
-    { title: 'QUICK PICK',      text: 'Who in this room would you call if something went wrong tonight?' },
-    { title: 'RATE IT',         text: 'On a scale of 1–10, how comfortable are you right now? Everyone answers.' },
-    { title: 'ONE THING',       text: 'Name one thing you noticed about someone at this table. Say it out loud.' },
-    { title: 'SWITCH',          text: 'Switch seats with someone. No explanation needed.' },
+    {
+      title: 'FIRST LOOK',
+      text:  'Look at everyone at the table, one by one. Don\'t say anything. Take your time. Everyone watches.',
+    },
+    {
+      title: 'ONE WORD',
+      text:  'Without thinking — one word for how you actually feel right now. Go around the room, fast. No explanations.',
+    },
+    {
+      title: 'PICK ONE',
+      text:  'If you had to leave the room with one person here — who? Say their name and one reason. Everyone picks.',
+    },
+    {
+      title: 'FIRST IMPRESSION',
+      text:  'Say what you actually thought when you first walked in tonight. One honest sentence. Everyone shares.',
+    },
+    {
+      title: 'RATE IT',
+      text:  'On a scale of 1–10: how comfortable are you right now? Everyone answers. If you say 8 or above, explain why.',
+    },
+    {
+      title: 'SWITCH',
+      text:  'Switch seats with someone. You don\'t have to explain — but not explaining says something too.',
+    },
   ],
-  // YELLOW — getting personal, light pressure
+
   yellow: [
-    { title: 'NO FILTER',       text: 'What\'s something you\'ve been thinking tonight but haven\'t said?' },
-    { title: 'REAL ANSWER',     text: 'When did you last lie to someone you actually care about?' },
-    { title: 'ALMOST SAID',     text: 'Start a sentence about someone here. Stop before the uncomfortable part.' },
-    { title: 'DECIDE',          text: 'Who in this room would take your side in a conflict? Who wouldn\'t?' },
-    { title: 'POINT BLANK',     text: 'Who here are you most uncertain about right now? Don\'t explain.' },
-    { title: 'IF I HAD TO',     text: 'If you had to pick — who here is the least like how they seem?' },
+    {
+      title: 'NO FILTER',
+      text:  'What\'s something you\'ve been thinking since we sat down — but haven\'t said? Say it now. Everyone shares.',
+    },
+    {
+      title: 'REAL TALK',
+      text:  'Who here seems like they\'re performing the most tonight? You have to name someone. Everyone picks.',
+    },
+    {
+      title: 'ALMOST',
+      text:  'Start a sentence about someone at this table. Stop right before you get to the honest part. Don\'t finish it.',
+    },
+    {
+      title: 'DECIDE',
+      text:  'Who here would you trust with something embarrassing? Who definitely wouldn\'t? Name both. Everyone answers.',
+    },
+    {
+      title: 'POINT BLANK',
+      text:  'Point at the person you\'ve been watching the most tonight. Hold it. Then say why — one sentence.',
+    },
+    {
+      title: 'CATCH ME',
+      text:  'Say something true about yourself — but phrase it like it sounds fake. Everyone guesses: real or lie?',
+    },
   ],
-  // RED — confrontation, direct pressure
+
   red: [
-    { title: 'CALL IT',         text: 'Look at one person. Ask them directly: "Are you being honest right now?"' },
-    { title: 'STAND',           text: 'Say one thing you actually believe about someone at this table.' },
-    { title: 'PICK SIDES',      text: 'Who do you trust most here? Who least? Say both. Be specific.' },
-    { title: 'PRESSURE',        text: 'If you had to guess who\'s been lying tonight — who, and why?' },
-    { title: 'NO TAKE BACK',    text: 'Say something about someone that you normally keep to yourself.' },
-    { title: 'FACE VALUE',      text: 'Choose someone. Tell them what you think they\'re actually feeling.' },
+    {
+      title: 'CALL IT',
+      text:  'Turn to one person. Ask them: "Are you being honest right now?" Wait for their answer. Don\'t fill the silence.',
+    },
+    {
+      title: 'STAND',
+      text:  'Say one thing you actually believe about someone at this table that you\'d normally keep to yourself.',
+    },
+    {
+      title: 'PRESSURE',
+      text:  'If you had to vote right now — who in this room has been lying the most? Say who. Say why. No softening.',
+    },
+    {
+      title: 'READ YOU',
+      text:  'Choose someone. Tell them — out loud — what you think they\'re actually feeling right now. They can\'t respond yet.',
+    },
+    {
+      title: 'NO TAKE BACK',
+      text:  'Point at the person you trust least in this room. Hold your point until everyone has seen. Then explain.',
+    },
+    {
+      title: 'LAST CHANCE',
+      text:  'Is there anything you said tonight that wasn\'t completely true? You can correct it now. This is the last chance.',
+    },
   ],
-  // BLUE — decompress, catch breath
+
   blue: [
-    { title: 'FAKE ONE',        text: 'Everyone say one false thing about themselves. Group votes who did it best.' },
-    { title: 'BREATHE',         text: 'What just happened? One sentence each, fast.' },
-    { title: 'RESET',           text: 'Say something completely ordinary. Something from your actual day.' },
+    {
+      title: 'FAKE IT',
+      text:  'Everyone say one obvious lie about yourself. The group votes: who was the most convincing? That person is suspicious.',
+    },
+    {
+      title: 'BREATHE',
+      text:  'One honest sentence each: what just happened in this room? Go around fast. No thinking.',
+    },
+    {
+      title: 'RESET',
+      text:  'Say something completely ordinary — from your actual life, not tonight. Notice how strange it feels.',
+    },
   ],
-  // BLACK — final reflection before vote
+
   black: [
-    { title: 'MOST REAL',       text: 'Who felt the most genuinely themselves tonight?' },
-    { title: 'STILL HIDING',    text: 'Who hasn\'t shown you who they really are yet?' },
-    { title: 'CHANGED',         text: 'Who here feels different to you now compared to when you sat down?' },
+    {
+      title: 'MOST REAL',
+      text:  'Before the vote — who felt the most genuinely themselves tonight? Everyone names someone and says why.',
+    },
+    {
+      title: 'STILL HIDING',
+      text:  'Who hasn\'t shown you who they really are? You have to name someone. No passing.',
+    },
+    {
+      title: 'CHANGED',
+      text:  'Who are you seeing differently now compared to when we sat down? Be specific about what changed.',
+    },
   ],
+
 };
 
 // ============================================================
